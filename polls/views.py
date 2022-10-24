@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
@@ -84,18 +84,18 @@ def enter_token(request, valid=None):
         # check whether it's valid:
         if form.is_valid():
             # process the data in form.cleaned_data as required
-
-            token = get_object_or_404(Token, pk=form.cleaned_data["token"])
-            if token.is_valid():
-                # redirect to a new URL:
-                return HttpResponseRedirect(reverse('polls:vote', args=[token]))
-            else:
-                # TODO: throw some sort of invalid token error
-                valid=False
-                return HttpResponseRedirect('enter_token', args=(valid))
+            try:
+                token = Token.objects.get(pk=form.cleaned_data["token"])
+                if token.is_valid():
+                    # redirect to a new URL:
+                    return HttpResponseRedirect(reverse('polls:vote', args=[token]))
+                else:
+                    valid = "Token already used."
+            except Token.DoesNotExist:
+                valid = "Token not found. Was it mistyped?"
 
     # if a GET (or any other method) we'll create a blank form
     else:
         form = TokenForm()
 
-    return render(request, 'polls/enter_token.html', {'form': form})
+    return render(request, 'polls/enter_token.html', {'form': form, 'valid': valid})
