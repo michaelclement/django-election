@@ -20,8 +20,19 @@ class Question(models.Model):
         return now - datetime.timedelta(days=1) <= self.pub_date <= now
 
     def __str__(self):
-        return self.question_text
+        return self.question_text + ' - ' + self.question_description
 
+class Token(models.Model):
+    token = models.CharField(max_length=200, unique=True, primary_key = True)
+    token_memo = models.CharField(max_length=200)
+    token_used = models.BooleanField(default=False)
+    token_revoked = models.BooleanField(default=False)
+
+    def is_valid(self):
+        return (not self.token_used) and (not self.token_revoked)
+
+    def __str__(self):
+        return self.token
 
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)

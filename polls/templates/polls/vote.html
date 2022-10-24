@@ -1,18 +1,20 @@
 {% extends "polls/base.html" %}
 
 {% block content %}
-<form action="{% url 'polls:vote' question.id %}" method="post" class="border rounded-lg">
+<p>TOKEN IS: {{ token }}</p>
+<form action="{% url 'polls:submit_vote' token %}" method="post" class="border rounded-lg">
   {% csrf_token %}
 
   {% for question in questions %}
   <fieldset>
     <legend>
       <h1>{{ question.question_text }}</h1>
+      <p>{{ question.question_description }}</p>
     </legend>
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
     {% for choice in question.choice_set.all %}
-    <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
-    <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br>
+    <input type="radio" id="choice{{ forloop.counter }}-{{question.id}}" name="{{question.id}}" value="{{ choice.id }}">
+    <label for="choice{{ forloop.counter }}-{{question.id}}">{{ choice.choice_text }}</label><br>
     {% endfor %}
   </fieldset>
   {% endfor %}
