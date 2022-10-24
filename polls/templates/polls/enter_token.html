@@ -1,0 +1,19 @@
+{% extends "polls/base.html" %}
+
+{% block content %}
+<div class="mx-auto w-full h-screen flex flex-col content-center justify-center items-center">
+  <h1
+    class="text-3xl font-extrabold bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 inline-block text-transparent bg-clip-text">
+    Enter an election token</h1>
+  <h1 class="text-l text-blue-500 mb-[15px] max-w-lg text-center">
+    Tokens are good for one voting session.
+    <span><b>Do not close the site until you've
+        submitted your vote.</b></span>
+  </h1>
+  <div>
+    <input type="text" placeholder="One time use token"
+      class="border-2 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 ease-in duration-100" />
+    <button class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 ease-in duration-100">Go</button>
+  </div>
+</div>
+{% endblock %}

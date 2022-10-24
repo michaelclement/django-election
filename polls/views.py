@@ -54,3 +54,6 @@ def vote(request, question_id):
 
 def landing_page(request):
     return render(request, 'polls/landing_page.html')
+
+def enter_token(request):
+    return render(request, 'polls/enter_token.html')

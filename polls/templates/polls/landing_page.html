@@ -6,8 +6,9 @@
     class="text-9xl font-extrabold bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 inline-block text-transparent bg-clip-text">
     ACM</h1>
   <h1 class="text-2xl text-blue-500 mb-[15px]">Officer Elections 2022</h1>
-  <button type="button"
+  <a role="button"
+    href="{% url 'polls:enter_token' %}"
     class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 ease-in duration-100">Get
-    Started</button>
+    Started</a>
 </div>
 {% endblock %}
