@@ -61,17 +61,15 @@ def submit_vote(request, token):
                     # TODO: error toast
 
                     # re-enable token if we choke on the form
-                    token.token_used = False 
+                    token.token_used = False
                     token.save()
                 else:
                     choice.votes = F('votes') + 1
                     choice.save()
 
-        token.token_used = True # TODO: only call this once at the end
+        token.token_used = True
         token.save() # render token impotent 
-        # TODO: redirect to "thank you" screen
-
-    return render(request, 'polls/landing_page.html')
+    return render(request, 'polls/complete.html')
 
 def landing_page(request):
     return render(request, 'polls/landing_page.html')
