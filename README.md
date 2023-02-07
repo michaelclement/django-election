@@ -9,3 +9,4 @@ A little Django web app meant to facilitate elections for ACM and other small gr
 ## Development
 - Start the virtual environment: `source django_venv/bin/activate`
 - Start Django server: `python manage.py runserver`
+- Navigate to: `http://localhost:8000/polls/` in your web browser
