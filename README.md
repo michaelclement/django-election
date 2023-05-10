@@ -1,11 +1,33 @@
 # django-election
 A little Django web app meant to facilitate elections for ACM and other small groups. Security isn't really a concern.
 
+Voting is enabled through the use of one-time tokens. Admins create tokens in the backend
+and then distribute them to voters. Each voter can vote one time using a unique token.
+
 ## Structure
 - `election/`: the main Django application
 - `polls/`: the polls application
 
-## Development
+## Creating Voter Tokens
+
+1. Navigate to `http://localhost:8000/admin/` and log in
+2. Under the section labeled **POLLS > Tokens**, click on **Add**
+3. On the **Add token** form insert a new token value and optionally
+a memo. Then click **SAVE**
+
+The new token may be distributed and used to vote a single time.
+
+## Creating Poll/Election Questions
+
+1. Navigate to `http://localhost:8000/admin/` and log in
+2. Under the section labeled **POLLS > Questions**, click on **Add**
+3. On the **Add question** form fill out the required fields and 
+click **SAVE**
+
+The new question will automatically display along with its choices 
+when the user navigates to the vote screen. 
+
+## Running the Application Locally
 
 ### 0. Set Up a Virtual Environment (Recommended)
 
