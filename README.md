@@ -4,7 +4,6 @@ A little Django web app meant to facilitate elections for ACM and other small gr
 ## Structure
 - `election/`: the main Django application
 - `polls/`: the polls application
-- `django_venv/`: virtual environment for development
 
 ## Development
 
