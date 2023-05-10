@@ -35,6 +35,13 @@ class ResultsView(generic.DetailView):
     model = Question
     template_name = 'polls/results.html'
 
+def results_view(request):
+    return render(request, 'polls/results.html', {
+        'questions': Question.objects.filter(
+            pub_date__lte=timezone.now()
+        ).order_by('-pub_date')
+    })
+
 def vote(request, token):
     return render(request, 'polls/vote.html', {
             'token': token,

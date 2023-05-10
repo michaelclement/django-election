@@ -1,7 +1,12 @@
-{% extends "polls/base.html" %}
+<h1>Results</h1>
 
-{% block content %}
+{#TODO: Style this page #}
 
-<p>{% formdata %}</p>
-
-{% endblock %}
+{% for q in questions %}
+  {{ q.question_text }}: 
+  <br>
+  {% for c in q.choice_set.all %}
+    {{c}}: {{c.votes}}
+  {% endfor %}
+  <br>
+{% endfor %}
