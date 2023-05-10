@@ -1,5 +1,7 @@
-# django-election
-A little Django web app meant to facilitate elections for ACM and other small groups. Security isn't really a concern.
+# Django Election
+A little Django web app based on the stock Django polls example. It's meant to 
+facilitate small group elections or other polling scenarios. 
+Security isn't really a concern.
 
 Voting is enabled through the use of one-time tokens. Admins create tokens in the backend
 and then distribute them to voters. Each voter can vote one time using a unique token.
