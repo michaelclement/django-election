@@ -29,6 +29,9 @@ click **SAVE**
 The new question will automatically display along with its choices 
 when the user navigates to the vote screen. 
 
+After users have voted, results can be viewed at 
+`http://localhost:8000/polls/results/`
+
 ## Running the Application Locally
 
 ### 0. Set Up a Virtual Environment (Recommended)
