@@ -16,7 +16,7 @@
         <div>
             <!-- <a href="{% url 'portal:detail' submission.id %}"> -->
             <p>
-                <p class='text-center'>{{submission.submitter.name}}</p>
+            <p class='text-center'>{{submission.submitter.name}} - #{{submission.wordle_number}}</p>
                 <br>
                 <textarea readonly rows=9 class='overflow-none text-center bg-transparent overflow-y-hidden'>
                     {{submission.submission_text}}

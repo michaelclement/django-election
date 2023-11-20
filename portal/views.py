@@ -39,13 +39,15 @@ def helper__get_champion_of_week():
 
 def helper__get_first_index(target_string):
     for index, char in enumerate(target_string):
-        if char in f'\U00002B1B\U0001f7e8\U0001f7e9\U00002b1c': 
+        if char in f'\U00002B1B\U0001f7e8\U0001f7e9\U00002b1c':
             return index
 
 
 # Create your views here.
 def index(request):
-    latest_submission_list = WordleSubmission.objects.filter(date_submitted__date=datetime.today().date())
+    date = datetime.today()
+    day = date.strftime("%d")
+    latest_submission_list = WordleSubmission.objects.filter(date_submitted__day=day)
 
     submitters = Submitter.objects.all()
     context = {
