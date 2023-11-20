@@ -47,7 +47,7 @@ def helper__get_first_index(target_string):
 def index(request):
     date = datetime.today()
     day = date.strftime("%d")
-    latest_submission_list = WordleSubmission.objects.filter(date_submitted__day=day)
+    latest_submission_list = WordleSubmission.objects.filter(date_submitted__gte = datetime.now().replace(hour=0,minute=0,second=0)).order_by('-date_submitted')
 
     submitters = Submitter.objects.all()
     context = {
