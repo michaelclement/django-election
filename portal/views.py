@@ -39,7 +39,7 @@ def helper__get_champion_of_week():
 
 def helper__get_first_index(target_string):
     for index, char in enumerate(target_string):
-        if char in f'\U00002B1B\U0001f7e8\U0001f7e9':
+        if char in f'\U00002B1B\U0001f7e8\U0001f7e9\U00002b1c': 
             return index
 
 
