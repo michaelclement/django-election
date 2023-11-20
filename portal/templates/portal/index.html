@@ -47,8 +47,8 @@
         <button class='mt-3 rounded-xl bg-blue-600 text-white p-4' type="submit" value="Submit">Submit</button>
     </form>
 
-    <div class='text-center'>
-        <h1 class='text-md sm:text-8xl text-zinc-800 font-black'>Champ of the Week</h1>
+    <div class='text-center mb-10'>
+        <h1 class='text-3xl sm:text-7xl text-zinc-800 font-black text-center mt-10 pt-10'>Champ of the Week</h1>
         <i class='my-5'>Last 7 days</i>
 
         {% if weekly_champ.min_person|length == 0 %}
@@ -60,10 +60,10 @@
         {% if weekly_champ.min_person|length > 0 %}
             {% for champ in weekly_champ.min_person %}
             <p class='sm:text-6xl mt-5'>{{champ}}</p>
-            <i class='text-sm'>Based on the user with the fewest number of
-            guesses made this week</i>
             {% endfor %}
         {% endif %}
+        <i class='text-sm'>Based on the user with the fewest number of
+        guesses made this week</i>
 
     </div>
 </div>
