@@ -18,13 +18,19 @@ def helper__get_champion_of_week():
         date = datetime.today()
         week = date.strftime("%V")
         subs_for_person = WordleSubmission.objects.filter(date_submitted__week=week, submitter=person)
+
         individual_total = 0
         for sub in subs_for_person:
             individual_total += sub.num_guesses
-        if individual_total < min_score:
+
+        # Account for days not yet submitted
+        for i in range(7 - len(subs_for_person)):
+            individual_total += 6
+
+        if individual_total < min_score and individual_total > 0 and individual_total < 42:
             min_score = individual_total
             min_person = [person.name]
-        elif individual_total == min_score:
+        elif individual_total == min_score and individual_total < 42:
             # we have a tie
             min_person.append(person.name)
 

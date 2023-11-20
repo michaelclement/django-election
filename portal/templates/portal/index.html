@@ -4,27 +4,6 @@
 
 <!-- TODO: add champ of the week -->
 <div class='bg-[#E3E3E1] text-zinc-700 h-full pt-5 sm:text-5xl overflow-x-hidden w-full text-center'>
-    <div class='text-center'>
-        <h1 class='text-md sm:text-8xl text-zinc-800 font-black'>Champ of the Week</h1>
-        <i class='my-5'>Last 7 days</i>
-
-        {% if weekly_champ.min_person|length == 0 %}
-            <h3 class='text-md sm:text-7xl my-5'>No champion</h3>
-        {% elif weekly_champ.min_person|length > 1  %}
-            <h3 class='text-md sm:text-7xl my-5'>We have a {{weekly_champ.min_person|length}}-way tie!</h3>
-        {% endif %}
-
-        {% if weekly_champ.min_person|length > 0 %}
-            {% for champ in weekly_champ.min_person %}
-            <p class='sm:text-6xl mt-5'>{{champ}}</p>
-            <p>made 
-                <b>{{weekly_champ.min_score}}</b> guesses out of a possible 
-                <b>43</b>.</p>
-            {% endfor %}
-        {% endif %}
-
-    </div>
-
     <h1 class='text-3xl sm:text-7xl text-zinc-800 font-black text-center mt-10 pt-10'>Today's Submissions</h1>
     <div class='text-center w-full mb-7'><i>Swipe to see all from today.</i></div>
 
@@ -54,7 +33,7 @@
     {% endif %}
 
 
-    <h1 class='text-3xl sm:text-7xl text-zinc-600 font-black text-center mt-10 pt-10'>Make a Submission</h1>
+    <h1 class='text-3xl sm:text-7xl text-zinc-800 font-black text-center mt-10 pt-10'>Make a Submission</h1>
     <form action="{% url 'portal:vote' %}" method="post" class='flex justify-center items-center flex-col'>
         {% csrf_token %}
         <legend class='text-center w-full mb-7'><i>Select your name and paste your answer to today's puzzle, then submit</i></legend>
@@ -66,5 +45,25 @@
         <textarea name="submission_text" rows="8"></textarea>
         <button class='mt-3 rounded-xl bg-blue-600 text-white p-4' type="submit" value="Submit">Submit</button>
     </form>
+
+    <div class='text-center'>
+        <h1 class='text-md sm:text-8xl text-zinc-800 font-black'>Champ of the Week</h1>
+        <i class='my-5'>Last 7 days</i>
+
+        {% if weekly_champ.min_person|length == 0 %}
+            <h3 class='text-md sm:text-7xl my-5'>No champion</h3>
+        {% elif weekly_champ.min_person|length > 1  %}
+            <h3 class='text-md sm:text-7xl my-5'>We have a {{weekly_champ.min_person|length}}-way tie!</h3>
+        {% endif %}
+
+        {% if weekly_champ.min_person|length > 0 %}
+            {% for champ in weekly_champ.min_person %}
+            <p class='sm:text-6xl mt-5'>{{champ}}</p>
+            <i class='text-sm'>Based on the user with the fewest number of
+            guesses made this week</i>
+            {% endfor %}
+        {% endif %}
+
+    </div>
 </div>
 
