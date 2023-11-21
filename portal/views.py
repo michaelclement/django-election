@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils.timezone import make_aware
 
 from .models import WordleSubmission, Submitter
 
@@ -47,7 +48,10 @@ def helper__get_first_index(target_string):
 def index(request):
     date = datetime.today()
     day = date.strftime("%d")
-    latest_submission_list = WordleSubmission.objects.filter(date_submitted__gte = datetime.now().replace(hour=0,minute=0,second=0)).order_by('-date_submitted')
+    latest_submission_list = WordleSubmission.objects.filter(
+            date_submitted__gte = make_aware(
+                datetime.now().replace(hour=0,minute=0,second=0)
+            )).order_by('-date_submitted')
 
     submitters = Submitter.objects.all()
     context = {
