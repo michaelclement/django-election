@@ -2,11 +2,45 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.timezone import make_aware
+from django.db.models import Sum
 
 from .models import WordleSubmission, Submitter
 
 import re
 from datetime import datetime, timedelta
+
+def helper__get_color_breakdown(window='all'):
+    y_sum = None
+    g_sum = None
+    total_poss = None
+
+    # add a model for color data and just pull it here
+    if window == 'week':
+        date = datetime.today()
+        week = date.strftime("%V")
+        y_sum = WordleSubmission.objects.filter(date_submitted__week=week).aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
+        g_sum = WordleSubmission.objects.filter(date_submitted__week=week).aggregate(Sum('valid_right_position'))['valid_right_position__sum']
+        b_sum = WordleSubmission.objects.filter(date_submitted__week=week).aggregate(Sum('invalid'))['invalid__sum']
+        total_poss = len(WordleSubmission.objects.filter(date_submitted__week=week))*30
+    elif window == 'today':
+        date = datetime.today()
+        y_sum = WordleSubmission.objects.filter(date_submitted__gte = make_aware(datetime.now().replace(hour=0,minute=0,second=0))).aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
+        g_sum = WordleSubmission.objects.filter(date_submitted__gte = make_aware(datetime.now().replace(hour=0,minute=0,second=0))).aggregate(Sum('valid_right_position'))['valid_right_position__sum']
+        b_sum = WordleSubmission.objects.filter(date_submitted__gte = make_aware(datetime.now().replace(hour=0,minute=0,second=0))).aggregate(Sum('invalid'))['invalid__sum']
+        total_poss = len(WordleSubmission.objects.filter(date_submitted__gte = make_aware(datetime.now().replace(hour=0,minute=0,second=0))))*30
+    else:
+        y_sum = WordleSubmission.objects.aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
+        g_sum = WordleSubmission.objects.aggregate(Sum('valid_right_position'))['valid_right_position__sum']
+        b_sum = WordleSubmission.objects.aggregate(Sum('invalid'))['invalid__sum']
+        total_poss = len(WordleSubmission.objects.all())*30
+
+    return {
+        "incorrect_pos_total": y_sum, 
+        "correct_pos_total": g_sum,
+        "invalid": b_sum,
+        "total_poss": total_poss,
+        "percentage_valid": (y_sum + g_sum) / total_poss
+    }
 
 def helper__get_champion_of_week():
     submitters = Submitter.objects.all()
@@ -52,11 +86,16 @@ def index(request):
             )).order_by('-date_submitted')
 
     submitters = Submitter.objects.all()
+
     context = {
         "latest_submission_list": latest_submission_list,
         "submitters": submitters,
-        "weekly_champ": helper__get_champion_of_week()
+        "weekly_champ": helper__get_champion_of_week(),
+        "yg_breakdown_day": helper__get_color_breakdown('today'),
+        "yg_breakdown_week": helper__get_color_breakdown('week'),
+        "yg_breakdown_all": helper__get_color_breakdown(),
     }
+
     return render(request, "portal/index.html", context)
 
 def detail(request, submission_id):
