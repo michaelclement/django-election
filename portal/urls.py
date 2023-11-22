@@ -12,5 +12,7 @@ urlpatterns = [
     path("<int:submitter_id>/results/", views.results, name="results"),
     # ex: /portal/vote
     path("vote/", views.vote, name="vote"),
+    #
+    path("history/", views.all_weekly_submissions, name="history"),
 ]
 

@@ -3,7 +3,13 @@
 <!-- TODO: add champ of the day? -->
 <div class='bg-[#E3E3E1] text-zinc-700 h-full pt-5 sm:text-5xl lg:text-2xl overflow-x-hidden w-full text-center'>
     <h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>Today's Submissions</h1>
-    <div class='text-center w-full mb-7'><i>Swipe to see all from today.</i></div>
+    <div class='text-center w-full mb-7'>
+        <i>Swipe to see all from today</i>
+        <br>
+        <a href="{% url 'portal:history' %}" class='underline text-blue-600'>Click to view all from this week</a>
+    </div>
+            
+    
 
     {% if latest_submission_list %}
         <div class='flex flex-row justify-between align-center'>

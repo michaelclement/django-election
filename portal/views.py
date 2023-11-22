@@ -6,7 +6,7 @@ from django.utils.timezone import make_aware
 from .models import WordleSubmission, Submitter
 
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def helper__get_champion_of_week():
     submitters = Submitter.objects.all()
@@ -46,8 +46,6 @@ def helper__get_first_index(target_string):
 
 # Create your views here.
 def index(request):
-    date = datetime.today()
-    day = date.strftime("%d")
     latest_submission_list = WordleSubmission.objects.filter(
             date_submitted__gte = make_aware(
                 datetime.now().replace(hour=0,minute=0,second=0)
@@ -68,6 +66,22 @@ def detail(request, submission_id):
 def results(request, submitter_id):
     response = "You're looking at results for submitter %s."
     return HttpResponse(response % submitter_id)
+
+def all_weekly_submissions(request):
+    delta = timedelta(days=7)
+    last_week = datetime.today().replace(hour=0, minute=0, second=0) - delta
+
+    latest_submission_list = WordleSubmission.objects.filter(
+            date_submitted__gte = make_aware(
+                last_week
+            )).order_by('-date_submitted')
+
+    submitters = Submitter.objects.all()
+    context = {
+        "latest_submission_list": latest_submission_list,
+        "submitters": submitters,
+    }
+    return render(request, "portal/historical-data.html", context)
 
 def vote(request):
     submitter = get_object_or_404(Submitter, pk=request.POST["submitter"])
