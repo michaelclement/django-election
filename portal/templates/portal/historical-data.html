@@ -16,7 +16,6 @@
                     {{submitter.name}}
                 </h2>
                 <div class='flex flex-row justify-between align-center'>
-                    <button class='sm:min-w-[80px] rounded bg-zinc-400 text-white mr-4' onclick='scrollDiv("L")' >&lt;</button>
                     <div class='flex flex-row items-center overflow-y-auto text-left lg:max-w-3xl mx-auto scroll-smooth px-10' id='container'>
                         {% for submission in latest_submission_list %}
                         {% if submission.submitter == submitter %}
@@ -36,7 +35,6 @@
                         {% endif %}
                         {% endfor %}
                     </div>
-                    <button class='sm:min-w-[80px] rounded bg-zinc-400 text-white ml-4' onclick='scrollDiv("R")' >&gt;</button>
                 </div>
             {% endfor %}
         {% endif %}
@@ -44,15 +42,3 @@
         <p>No submissions to show.</p>
     {% endif %}
 </div>
-
-<script>
-    function scrollDiv(direction) {
-        let container = document.querySelector('#container');
-        if (direction == "R") {
-            container.scrollLeft += 420;
-        } else {
-            container.scrollLeft -= 420;
-        }
-    }
-</script>
-
