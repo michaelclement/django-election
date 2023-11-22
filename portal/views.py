@@ -72,12 +72,14 @@ def results(request, submitter_id):
 def vote(request):
     submitter = get_object_or_404(Submitter, pk=request.POST["submitter"])
 
-    # Get the details we want
     target_string = request.POST["submission_text"]
+    # Replace "X/6" with "6/6" if they failed to solve puzzle
+    target_string = target_string.replace('X', '6')
+
     re_result = re.search(r"^\D*(\d+).*(\d)\/", target_string)
 
     # Emoji regexes
-    black_reg = re.compile(f'[\U00002B1B]')
+    black_reg = re.compile(f'[\U00002B1B\U00002B1C]')
     yellow_reg = re.compile(f'[\U0001f7e8]')
     green_reg = re.compile(f'[\U0001f7e9]') 
 
