@@ -19,7 +19,7 @@ def helper__get_color_breakdown(window='all'):
         b_sum = WordleSubmission.objects.filter(date_submitted__week=week).aggregate(Sum('invalid'))['invalid__sum']
         total_poss = len(WordleSubmission.objects.filter(date_submitted__week=week))*30
     elif window == 'today':
-        day = date.strftime("%d")
+        day = datetime.today().strftime("%d")
         delta = timedelta(hours=24)
         yesterday = datetime.today().replace(hour=0, minute=0, second=0) - delta
         y_sum = WordleSubmission.objects.filter(date_submitted__gte = make_aware(yesterday)).order_by('-date_submitted').aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
