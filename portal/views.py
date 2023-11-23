@@ -39,7 +39,6 @@ def helper__get_color_breakdown(window='all'):
         "correct_pos_total": g_sum,
         "invalid": b_sum,
         "total_poss": total_poss,
-        "percentage_valid": (y_sum + g_sum) / total_poss
     }
 
 def helper__get_champion_of_week():
