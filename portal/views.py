@@ -24,10 +24,14 @@ def helper__get_color_breakdown(window='all'):
         total_poss = len(WordleSubmission.objects.filter(date_submitted__week=week))*30
     elif window == 'today':
         date = datetime.today()
-        y_sum = WordleSubmission.objects.filter(date_submitted__gte = make_aware(datetime.now().replace(hour=0,minute=0,second=0))).aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
-        g_sum = WordleSubmission.objects.filter(date_submitted__gte = make_aware(datetime.now().replace(hour=0,minute=0,second=0))).aggregate(Sum('valid_right_position'))['valid_right_position__sum']
-        b_sum = WordleSubmission.objects.filter(date_submitted__gte = make_aware(datetime.now().replace(hour=0,minute=0,second=0))).aggregate(Sum('invalid'))['invalid__sum']
-        total_poss = len(WordleSubmission.objects.filter(date_submitted__gte = make_aware(datetime.now().replace(hour=0,minute=0,second=0))))*30
+        day = date.strftime("%d")
+        # y_sum = WordleSubmission.objects.filter(date_submitted__gte = make_aware(datetime.now().replace(hour=0,minute=0,second=0))).aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
+        # g_sum = WordleSubmission.objects.filter(date_submitted__gte = make_aware(datetime.now().replace(hour=0,minute=0,second=0))).aggregate(Sum('valid_right_position'))['valid_right_position__sum']
+        # b_sum = WordleSubmission.objects.filter(date_submitted__gte = make_aware(datetime.now().replace(hour=0,minute=0,second=0))).aggregate(Sum('invalid'))['invalid__sum']
+        y_sum = WordleSubmission.objects.filter(date_submitted__day=day).aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
+        g_sum = WordleSubmission.objects.filter(date_submitted__day=day).aggregate(Sum('valid_right_position'))['valid_right_position__sum']
+        b_sum = WordleSubmission.objects.filter(date_submitted__day=day).aggregate(Sum('invalid'))['invalid__sum']
+        total_poss = len(WordleSubmission.objects.filter(date_submitted__day=day))*30
     else:
         y_sum = WordleSubmission.objects.aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
         g_sum = WordleSubmission.objects.aggregate(Sum('valid_right_position'))['valid_right_position__sum']
