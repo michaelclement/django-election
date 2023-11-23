@@ -3,17 +3,13 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from django.db.models import Sum
-
 from .models import WordleSubmission, Submitter
-
 import re
 from datetime import datetime, timedelta
-
 def helper__get_color_breakdown(window='all'):
     y_sum = None
     g_sum = None
     total_poss = None
-
     # add a model for color data and just pull it here
     if window == 'week':
         date = datetime.today()
@@ -23,14 +19,12 @@ def helper__get_color_breakdown(window='all'):
         b_sum = WordleSubmission.objects.filter(date_submitted__week=week).aggregate(Sum('invalid'))['invalid__sum']
         total_poss = len(WordleSubmission.objects.filter(date_submitted__week=week))*30
     elif window == 'today':
-        date = datetime.today()
         day = date.strftime("%d")
-        # y_sum = WordleSubmission.objects.filter(date_submitted__gte = make_aware(datetime.now().replace(hour=0,minute=0,second=0))).aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
-        # g_sum = WordleSubmission.objects.filter(date_submitted__gte = make_aware(datetime.now().replace(hour=0,minute=0,second=0))).aggregate(Sum('valid_right_position'))['valid_right_position__sum']
-        # b_sum = WordleSubmission.objects.filter(date_submitted__gte = make_aware(datetime.now().replace(hour=0,minute=0,second=0))).aggregate(Sum('invalid'))['invalid__sum']
-        y_sum = WordleSubmission.objects.filter(date_submitted__day=day).aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
-        g_sum = WordleSubmission.objects.filter(date_submitted__day=day).aggregate(Sum('valid_right_position'))['valid_right_position__sum']
-        b_sum = WordleSubmission.objects.filter(date_submitted__day=day).aggregate(Sum('invalid'))['invalid__sum']
+        delta = timedelta(hours=24)
+        yesterday = datetime.today().replace(hour=0, minute=0, second=0) - delta
+        y_sum = WordleSubmission.objects.filter(date_submitted__gte = make_aware(yesterday)).order_by('-date_submitted').aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
+        g_sum = WordleSubmission.objects.filter(date_submitted__gte = make_aware(yesterday)).order_by('-date_submitted').aggregate(Sum('valid_right_position'))['valid_right_position__sum']
+        b_sum = WordleSubmission.objects.filter(date_submitted__gte = make_aware(yesterday)).order_by('-date_submitted').aggregate(Sum('invalid'))['invalid__sum']
         total_poss = len(WordleSubmission.objects.filter(date_submitted__day=day))*30
     else:
         y_sum = WordleSubmission.objects.aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
@@ -83,10 +77,12 @@ def helper__get_first_index(target_string):
 
 # Create your views here.
 def index(request):
-    latest_submission_list = WordleSubmission.objects.filter(
-            date_submitted__gte = make_aware(
-                datetime.now().replace(hour=0,minute=0,second=0)
-            )).order_by('-date_submitted')
+    date = datetime.today()
+    day = date.strftime("%d")
+    delta = timedelta(hours=24)
+    yesterday = datetime.today().replace(hour=0, minute=0, second=0) - delta
+
+    latest_submission_list = WordleSubmission.objects.filter(date_submitted__gte = make_aware(yesterday)).order_by('-date_submitted')
 
     submitters = Submitter.objects.all()
 
@@ -152,5 +148,4 @@ def vote(request):
     )
 
     new_submission.save()
-
     return HttpResponseRedirect("/portal")
