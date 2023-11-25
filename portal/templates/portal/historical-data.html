@@ -15,6 +15,20 @@
                 <h2 class='text-2xl sm:text-5xl lg:text-2xl text-zinc-800 font-black text-center mt-10 pt-10'>
                     {{submitter.name}}
                 </h2>
+                {% for key, val in personal_stats.items %}
+                    {% if key == submitter.name %}
+                    <div class='flex flex-row items-center justify-center'>
+                        <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-yellow-600'>{{val.incorrect_pos_total}}&nbsp;</h3>
+                        <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-green-600'>{{val.correct_pos_total}}&nbsp;</h3>
+                        <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-zinc-700'>{{val.invalid}}&nbsp;</h3>
+                    </div>
+                    <div class='flex flex-row items-center justify-center'>
+                        <p class='mb-5 text-zinc-600'>
+                            {{ val.submitter_guess_total }} of 42 possible guesses made
+                        </p>
+                    </div>
+                    {% endif %}
+                {% endfor %}
                 <div class='flex flex-row justify-between align-center'>
                     <div class='flex flex-row items-center overflow-y-auto text-left lg:max-w-3xl mx-auto scroll-smooth px-10' id='container'>
                         {% for submission in latest_submission_list %}
@@ -22,8 +36,8 @@
                             <div>
                                 <!-- <a href="{% url 'portal:detail' submission.id %}"> -->
                                 <p>
-                                <p class='text-center'>{{submission.submitter.name}} - #{{submission.wordle_number}}</p>
-                                    <br>
+                                <br>
+                                <p class='text-center'>#{{submission.wordle_number}}</p>
                                     <textarea readonly rows=9 class='overflow-none text-center bg-transparent overflow-y-hidden'>
                                         {{submission.submission_text}}
                                     </textarea>

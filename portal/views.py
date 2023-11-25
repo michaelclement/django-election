@@ -10,31 +10,35 @@ from datetime import datetime, timedelta
 WORDLE_START_DATE = datetime(2021, 6, 19)
 WORDLE_PUZZLE_NUM_TODAY = (datetime.today() - WORDLE_START_DATE).days
 
-def helper__get_color_breakdown(window='all'):
+def helper__get_color_breakdown(window='all', submitter='all'):
     y_sum = None
     g_sum = None
     total_poss = None
+    submitter_guess_total = None
 
     # add a model for color data and just pull it here
     if window == 'week':
         date = datetime.today()
         week = date.strftime("%V")
-        y_sum = WordleSubmission.objects.filter(
-            date_submitted__week=week
-        ).aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
 
-        g_sum = WordleSubmission.objects.filter(
-            date_submitted__week=week
-        ).aggregate(Sum('valid_right_position'))['valid_right_position__sum']
+        if submitter != 'all':
+            weekly_puzzles = WordleSubmission.objects.filter(date_submitted__week=week, submitter=submitter.id)
+            submitter_guess_total = weekly_puzzles.aggregate(Sum('num_guesses'))['num_guesses__sum']
+        else:
+            weekly_puzzles = WordleSubmission.objects.filter(date_submitted__week=week)
 
-        b_sum = WordleSubmission.objects.filter(date_submitted__week=week).aggregate(Sum('invalid'))['invalid__sum']
+        y_sum = weekly_puzzles.aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
+        g_sum = weekly_puzzles.aggregate(Sum('valid_right_position'))['valid_right_position__sum']
+        b_sum = weekly_puzzles.aggregate(Sum('invalid'))['invalid__sum']
         total_poss = len(WordleSubmission.objects.filter(date_submitted__week=week))*30
+
     elif window == 'today':
         latest_submission_list = WordleSubmission.objects.filter(wordle_number = WORDLE_PUZZLE_NUM_TODAY).order_by('-date_submitted')
         y_sum = latest_submission_list.aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
         g_sum = latest_submission_list.aggregate(Sum('valid_right_position'))['valid_right_position__sum']
         b_sum = latest_submission_list.aggregate(Sum('invalid'))['invalid__sum']
         total_poss = len(latest_submission_list)*30
+
     else:
         y_sum = WordleSubmission.objects.aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
         g_sum = WordleSubmission.objects.aggregate(Sum('valid_right_position'))['valid_right_position__sum']
@@ -46,6 +50,7 @@ def helper__get_color_breakdown(window='all'):
         "correct_pos_total": g_sum,
         "invalid": b_sum,
         "total_poss": total_poss,
+        "submitter_guess_total": submitter_guess_total,
     }
 
 def helper__get_champion_of_week():
@@ -119,10 +124,18 @@ def all_weekly_submissions(request):
             )).order_by('-wordle_number')
 
     submitters = Submitter.objects.all()
+
+    personal_stats = {}
+    for submitter in submitters:
+        results = helper__get_color_breakdown(window='week', submitter=submitter)
+        personal_stats[submitter.name] = results
+
     context = {
         "latest_submission_list": latest_submission_list,
         "submitters": submitters,
+        "personal_stats": personal_stats,
     }
+
     return render(request, "portal/historical-data.html", context)
 
 def vote(request):
