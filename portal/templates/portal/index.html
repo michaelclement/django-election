@@ -29,7 +29,6 @@ dialog::backdrop {
                         </textarea>
                         <!-- </a> -->
                         <div class='flex justify-start items-start flex-wrap'>
-                            <!-- TODO: add all reactions here -->
                             {% for reaction in submission.reaction_list %}
                                 <div class='rounded-lg bg-zinc-300 px-2 py-2 text-zinc-500 mr-4 mb-4'>
                                     {{reaction}}
@@ -38,12 +37,12 @@ dialog::backdrop {
                         </div>
                         <div class='flex flex-col justify-center w-full'>
                             <button 
-                                onclick='showEmojiPicker()' 
+                                onclick='showEmojiPicker({{submission.id}})' 
                                 class='rounded-lg bg-zinc-300 px-2 py-0 w-full h-[100px] m-auto mb-[30px]'>
                                 &#9786;+
                             </button>
 
-                            <dialog id='emoji-picker' class='w-[90vw] max-w-[900px] h-[425px] rounded-xl'>
+                            <dialog id='{{submission.id}}' class='w-[90vw] max-w-[900px] h-[425px] rounded-xl'>
                                 <button 
                                     onclick='hideEmojiPicker()'
                                     class='absolute top-0 right-0 rounded-full bg-zinc-300 px-2 py-0 mr-3 mt-3 w-[120px] h-[120px]'>
@@ -147,10 +146,10 @@ dialog::backdrop {
         }
     }
 
-    function showEmojiPicker() {
-        document.querySelector('#emoji-picker').showModal();
+    function showEmojiPicker(id) {
+        document.getElementById(id).showModal();
     }
     function hideEmojiPicker() {
-        document.querySelector('#emoji-picker').close();
+        document.querySelector('dialog').close();
     }
 </script>
