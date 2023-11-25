@@ -39,12 +39,12 @@ dialog::backdrop {
                             <button 
                                 onclick='showEmojiPicker({{submission.id}})' 
                                 class='rounded-lg bg-zinc-300 px-2 py-0 w-full h-[100px] m-auto mb-[30px]'>
-                                &#9786;+
+                                +Reaction
                             </button>
 
                             <dialog id='{{submission.id}}' class='w-[90vw] max-w-[900px] h-[425px] rounded-xl'>
                                 <button 
-                                    onclick='hideEmojiPicker()'
+                                    onclick='hideEmojiPicker({{submission.id}})'
                                     class='absolute top-0 right-0 rounded-full bg-zinc-300 px-2 py-0 mr-3 mt-3 w-[120px] h-[120px]'>
                                     X
                                 </button>
@@ -149,7 +149,7 @@ dialog::backdrop {
     function showEmojiPicker(id) {
         document.getElementById(id).showModal();
     }
-    function hideEmojiPicker() {
-        document.querySelector('dialog').close();
+    function hideEmojiPicker(id) {
+        document.getElementById(id).close();
     }
 </script>
