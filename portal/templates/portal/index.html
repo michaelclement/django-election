@@ -24,7 +24,7 @@ dialog::backdrop {
                     <div class='mx-2 h-full flex items-center flex-col w-[400px] min-w-[400px]'>
                         <!-- <a href="{% url 'portal:detail' submission.id %}"> -->
                         <p class='text-center'>{{submission.submitter.name}} - #{{submission.wordle_number}}</p>
-                        <textarea readonly rows=9 class='overflow-none text-center bg-transparent overflow-y-hidden m-auto mt-0 w-full'>
+                        <textarea readonly rows=9 class='overflow-none text-center bg-transparent overflow-y-hidden m-auto mt-0 w-[6.5em]'>
                             {{submission.submission_text}}
                         </textarea>
                         <!-- </a> -->
