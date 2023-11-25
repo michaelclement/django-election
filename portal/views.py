@@ -174,10 +174,6 @@ def react(request):
     # Get the submission we're reacting to
     wordle_submission = get_object_or_404(WordleSubmission, pk=request.POST["wordle_submission_id"])
 
-    print("ID: ", request.POST['wordle_submission_id']
-
-    # react = request.POST["reaction_id"]
-
     rpk = request.POST.keys()
     if "reaction_0" in rpk:
         wordle_submission.sad_reactions += 1
