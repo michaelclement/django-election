@@ -7,7 +7,7 @@ from .models import WordleSubmission, Submitter
 import re
 from datetime import datetime, timedelta
 
-WORDLE_START_DATE = datetime(2021, 6, 20)
+WORDLE_START_DATE = datetime(2021, 6, 19)
 WORDLE_PUZZLE_NUM_TODAY = (datetime.today() - WORDLE_START_DATE).days
 
 def helper__get_color_breakdown(window='all'):
