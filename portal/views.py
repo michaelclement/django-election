@@ -92,7 +92,6 @@ def helper__get_first_index(target_string):
 # Create your views here.
 def index(request):
     latest_submission_list = WordleSubmission.objects.filter(wordle_number = WORDLE_PUZZLE_NUM_TODAY).order_by('-date_submitted')
-
     submitters = Submitter.objects.all()
 
     context = {
@@ -139,6 +138,10 @@ def all_weekly_submissions(request):
     return render(request, "portal/historical-data.html", context)
 
 def vote(request):
+    # Hacky workaround to enable two forms on index page... 
+    if 'wordle_submission_id' in request.POST.keys():
+        return react(request)
+
     submitter = get_object_or_404(Submitter, pk=request.POST["submitter"])
 
     target_string = request.POST["submission_text"]
@@ -155,7 +158,7 @@ def vote(request):
     earliest_idx = helper__get_first_index(target_string)
 
     new_submission = WordleSubmission(
-        submission_text = target_string[earliest_idx-1:],
+        submission_text = target_string[earliest_idx:].strip(),
         submitter=submitter,
         wordle_number=re_result.group(1),
         num_guesses=re_result.group(2),
@@ -166,3 +169,26 @@ def vote(request):
 
     new_submission.save()
     return HttpResponseRedirect("/portal")
+
+def react(request):
+    # Get the submission we're reacting to
+    wordle_submission = get_object_or_404(WordleSubmission, pk=request.POST["wordle_submission_id"])
+
+    # react = request.POST["reaction_id"]
+
+    rpk = request.POST.keys()
+    if "reaction_0" in rpk:
+        wordle_submission.sad_reactions += 1
+    elif "reaction_1" in rpk:
+        wordle_submission.mind_blown_reactions += 1
+    elif "reaction_2" in rpk:
+        wordle_submission.wow_reactions += 1
+    elif "reaction_3" in rpk:
+        wordle_submission.clap_reactions += 1
+    else:
+        wordle_submission.monkey_reactions += 1
+
+    # Update
+    wordle_submission.save()
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

@@ -1,4 +1,9 @@
 <script src="https://cdn.tailwindcss.com"></script>
+<style>
+dialog::backdrop {
+    backdrop-filter: blur(3px)
+}
+</style>
 
 <!-- TODO: add champ of the day? -->
 <div class='bg-[#E3E3E1] text-zinc-700 h-full pt-5 sm:text-5xl lg:text-2xl overflow-x-hidden w-full text-center'>
@@ -16,18 +21,50 @@
             <button class='sm:min-w-[80px] rounded bg-zinc-400 text-white mr-4' onclick='scrollDiv("L")' >&lt;</button>
             <div class='flex flex-row items-center overflow-y-auto text-left lg:max-w-3xl mx-auto scroll-smooth px-10' id='container'>
                 {% for submission in latest_submission_list %}
-                    <div>
+                    <div class='mx-2 h-full flex items-center flex-col w-[400px]'>
                         <!-- <a href="{% url 'portal:detail' submission.id %}"> -->
-                        <p>
                         <p class='text-center'>{{submission.submitter.name}} - #{{submission.wordle_number}}</p>
-                            <br>
-                            <textarea readonly rows=9 class='overflow-none text-center bg-transparent overflow-y-hidden'>
-                                {{submission.submission_text}}
-                            </textarea>
+                        <textarea readonly rows=9 class='overflow-none text-center bg-transparent overflow-y-hidden m-auto mt-0 w-full'>
+                            {{submission.submission_text}}
+                        </textarea>
                         <!-- </a> -->
-                        </p>
-                        <!-- TODO: add full display here but pretty -->
-                        <!--{{ submission.submission_text }}-->
+                        <div class='flex justify-start items-start flex-wrap'>
+                            <!-- TODO: add all reactions here -->
+                            {% for reaction in submission.reaction_list %}
+                                <div class='rounded-lg bg-zinc-300 px-2 py-2 text-zinc-500 mr-4 mb-4'>
+                                    {{reaction}}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class='flex flex-col justify-center w-full'>
+                            <button 
+                                onclick='showEmojiPicker()' 
+                                class='rounded-lg bg-zinc-300 px-2 py-0 w-full h-[100px] m-auto mb-[30px]'>
+                                &#9786;+
+                            </button>
+
+                            <dialog id='emoji-picker' class='w-[90vw] max-w-[900px] h-[425px] rounded-xl'>
+                                <button 
+                                    onclick='hideEmojiPicker()'
+                                    class='absolute top-0 right-0 rounded-full bg-zinc-300 px-2 py-0 mr-3 mt-3 w-[120px] h-[120px]'>
+                                    X
+                                </button>
+                                <div class='flex justify-center h-full w-full'>
+                                    <form action="{% url 'portal:react' %}" method="post" 
+                                        class='flex justify-center items-center flex-col mt-[40px]'>
+                                        {% csrf_token %}
+                                        <input value={{submission.id}} name='wordle_submission_id' readonly class='hidden'></input>
+                                        <div class='flex justify-evenly items-center text-8xl w-[90%]'>
+                                            <button name='reaction_0' value='0' action='submit'>&nbsp;😢&nbsp;</button>
+                                            <button name='reaction_1' value='1' action='submit'>&nbsp;🤯&nbsp;</button>
+                                            <button name='reaction_2' value='2' action='submit'>&nbsp;😮&nbsp;</button>
+                                            <button name='reaction_3' value='3' action='submit'>&nbsp;👏&nbsp;</button>
+                                            <button name='reaction_4' value='4' action='submit'>&nbsp;🦧&nbsp;</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </dialog>
+                        </div>
                     </div>
                 {% endfor %}
             </div>
@@ -108,5 +145,12 @@
         } else {
             container.scrollLeft -= 420;
         }
+    }
+
+    function showEmojiPicker() {
+        document.querySelector('#emoji-picker').showModal();
+    }
+    function hideEmojiPicker() {
+        document.querySelector('#emoji-picker').close();
     }
 </script>

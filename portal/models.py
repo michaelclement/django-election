@@ -32,7 +32,7 @@ class Submitter(models.Model):
         return self.name
 
 class WordleSubmission(models.Model):
-    submission_text = models.CharField(max_length=200)
+    submission_text = models.TextField(max_length=200)
     submitter = models.ForeignKey(Submitter, on_delete=models.CASCADE)
     date_submitted = models.DateTimeField(auto_now_add=True)
     wordle_number = models.IntegerField()
@@ -45,6 +45,32 @@ class WordleSubmission(models.Model):
     # count by counting all greens in a correct answer, which
     # I don't think we want.
     valid_right_position = models.IntegerField() # num green blocks
+
+    # EMOJI REACTIONS
+    sad_reactions = models.IntegerField(default=0)
+    mind_blown_reactions = models.IntegerField(default=0)
+    wow_reactions = models.IntegerField(default=0)
+    clap_reactions = models.IntegerField(default=0)
+    monkey_reactions = models.IntegerField(default=0)
+
+    @property
+    def reaction_list(self):
+        dc = self.__dict__
+        reaction_list = []
+        for key in dc.keys():
+            if 'reaction' in key and dc[key] != 0:
+                if 'sad' in key:
+                    reaction_list.append('😢' + str(dc[key]))
+                if 'mind' in key:
+                    reaction_list.append('🤯' + str(dc[key]))
+                if 'wow' in key:
+                    reaction_list.append('😮' + str(dc[key]))
+                if 'clap' in key:
+                    reaction_list.append('👏' + str(dc[key]))
+                if 'monkey' in key:
+                    reaction_list.append('🦧' + str(dc[key]))
+
+        return reaction_list
 
     def __str__(self):
         return f"\
