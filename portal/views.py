@@ -116,7 +116,7 @@ def all_weekly_submissions(request):
     latest_submission_list = WordleSubmission.objects.filter(
             date_submitted__gte = make_aware(
                 last_week
-            )).order_by('-date_submitted')
+            )).order_by('-wordle_number')
 
     submitters = Submitter.objects.all()
     context = {
@@ -129,8 +129,8 @@ def vote(request):
     submitter = get_object_or_404(Submitter, pk=request.POST["submitter"])
 
     target_string = request.POST["submission_text"]
-    # Replace "X/6" with "6/6" if they failed to solve puzzle
-    target_string = target_string.replace('X', '6')
+    # Replace "X/6" with "7/6" if they failed to solve puzzle
+    target_string = target_string.replace('X', '7')
 
     re_result = re.search(r"^\D*(\d+).*(\d)\/", target_string)
 
