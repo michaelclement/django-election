@@ -7,13 +7,13 @@ from .models import WordleSubmission, Submitter
 import re
 from datetime import datetime, timedelta
 
+WORDLE_START_DATE = datetime(2021, 6, 19)
+
 def helper__get_color_breakdown(window='all', submitter='all'):
     y_sum = None
     g_sum = None
     total_poss = None
     submitter_guess_total = None
-
-    WORDLE_START_DATE = datetime(2021, 6, 19)
     WORDLE_PUZZLE_NUM_TODAY = (datetime.today() - WORDLE_START_DATE).days
 
     # add a model for color data and just pull it here
@@ -91,7 +91,6 @@ def helper__get_first_index(target_string):
 
 # Create your views here.
 def index(request):
-    WORDLE_START_DATE = datetime(2021, 6, 19)
     WORDLE_PUZZLE_NUM_TODAY = (datetime.today() - WORDLE_START_DATE).days
 
     latest_submission_list = WordleSubmission.objects.filter(wordle_number = WORDLE_PUZZLE_NUM_TODAY).order_by('-date_submitted')

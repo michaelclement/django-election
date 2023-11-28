@@ -1,87 +1,96 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-dialog::backdrop {
-    backdrop-filter: blur(3px)
-}
+    dialog::backdrop {
+        backdrop-filter: blur(3px)
+    }
 </style>
 
 <!-- TODO: add champ of the day? -->
-<div class='bg-[#E3E3E1] text-zinc-700 h-full pt-5 sm:text-5xl lg:text-2xl overflow-x-hidden w-full text-center'>
-    <h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>Today's Submissions</h1>
+<body class='bg-[#E3E3E1] text-zinc-700 h-full sm:text-5xl lg:text-2xl w-full text-center'>
+    <div class='bg-zinc-800 text-white w-full py-4 flex flex-row justify-center items-center mb-4'>
+        <a href="href='https://www.nytimes.com/games/wordle/index.html">Take today's
+            <span class='ml-2 rounded-md bg-yellow-600 text-white p-1'>Wordle</span>
+        </a>
+    </div>
+    <h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>Today's Submissions
+    </h1>
     <div class='text-center w-full mb-7'>
         <i>Swipe to see all from today</i>
         <br>
         <a href="{% url 'portal:history' %}" class='underline text-blue-600'>Click to view all from this week</a>
     </div>
-            
-    
+
+
 
     {% if latest_submission_list %}
-        <div class='flex flex-row justify-between align-center'>
-            <button class='sm:min-w-[80px] rounded bg-zinc-400 text-white mr-4' onclick='scrollDiv("L")' >&lt;</button>
-            <div class='flex flex-row items-center overflow-y-auto text-left lg:max-w-3xl mx-auto scroll-smooth px-10' id='container'>
-                {% for submission in latest_submission_list %}
-                    <div class='mx-2 h-full flex items-center flex-col w-[400px] min-w-[400px]'>
-                        <!-- <a href="{% url 'portal:detail' submission.id %}"> -->
-                        <p class='text-center'>{{submission.submitter.name}} - #{{submission.wordle_number}}</p>
-                        <textarea readonly rows=9 class='overflow-none text-center bg-transparent overflow-y-hidden m-auto mt-0 w-[6.5em]'>
+    <div class='flex flex-row justify-between align-center'>
+        <button class='sm:min-w-[80px] rounded bg-zinc-400 text-white mr-4' onclick='scrollDiv("L")'>&lt;</button>
+        <div class='flex flex-row items-center overflow-y-auto text-left lg:max-w-3xl mx-auto scroll-smooth px-10'
+            id='container'>
+            {% for submission in latest_submission_list %}
+            <div class='mx-2 h-full flex items-center flex-col w-[400px] min-w-[400px]'>
+                <!-- <a href="{% url 'portal:detail' submission.id %}"> -->
+                <p class='text-center'>{{submission.submitter.name}} - #{{submission.wordle_number}}</p>
+                <textarea readonly rows=9
+                    class='overflow-none text-center bg-transparent overflow-y-hidden m-auto mt-0 w-[6.5em]'>
                             {{submission.submission_text}}
                         </textarea>
-                        <!-- </a> -->
-                        <div class='flex justify-start items-start flex-wrap'>
-                            {% for reaction in submission.reaction_list %}
-                                <div class='rounded-lg bg-zinc-300 px-2 py-2 text-zinc-500 mr-4 mb-4'>
-                                    {{reaction}}
-                                </div>
-                            {% endfor %}
-                        </div>
-                        <div class='flex flex-col justify-center w-full'>
-                            <button 
-                                onclick='showEmojiPicker({{submission.id}})' 
-                                class='rounded-lg bg-zinc-300 px-2 py-0 w-full h-[100px] m-auto mb-[30px]'>
-                                +Reaction
-                            </button>
-
-                            <dialog id='{{submission.id}}' class='w-[90vw] max-w-[900px] h-[425px] rounded-xl'>
-                                <button 
-                                    onclick='hideEmojiPicker({{submission.id}})'
-                                    class='absolute top-0 right-0 rounded-full bg-zinc-300 px-2 py-0 mr-3 mt-3 w-[120px] h-[120px]'>
-                                    X
-                                </button>
-                                <div class='flex justify-center h-full w-full'>
-                                    <form action="{% url 'portal:react' %}" method="post" 
-                                        class='flex justify-center items-center flex-col mt-[40px]'>
-                                        {% csrf_token %}
-                                        <input value={{submission.id}} name='wordle_submission_id' readonly class='hidden'></input>
-                                        <div class='flex justify-evenly items-center text-8xl w-[90%]'>
-                                            <button name='reaction_0' value='0' action='submit'>&nbsp;😢&nbsp;</button>
-                                            <button name='reaction_1' value='1' action='submit'>&nbsp;🤯&nbsp;</button>
-                                            <button name='reaction_2' value='2' action='submit'>&nbsp;😮&nbsp;</button>
-                                            <button name='reaction_3' value='3' action='submit'>&nbsp;👏&nbsp;</button>
-                                            <button name='reaction_4' value='4' action='submit'>&nbsp;🦧&nbsp;</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </dialog>
-                        </div>
+                <!-- </a> -->
+                <div class='flex justify-start items-start flex-wrap'>
+                    {% for reaction in submission.reaction_list %}
+                    <div class='rounded-lg bg-zinc-300 px-2 py-2 text-zinc-500 mr-4 mb-4'>
+                        {{reaction}}
                     </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
+                <div class='flex flex-col justify-center w-full'>
+                    <button onclick='showEmojiPicker({{submission.id}})'
+                        class='rounded-lg bg-zinc-300 px-2 py-0 w-full h-[100px] m-auto mb-[30px]'>
+                        +Reaction
+                    </button>
+
+                    <dialog id='{{submission.id}}' class='w-[90vw] max-w-[900px] h-[425px] rounded-xl'>
+                        <button onclick='hideEmojiPicker({{submission.id}})'
+                            class='absolute top-0 right-0 rounded-full bg-zinc-300 px-2 py-0 mr-3 mt-3 w-[120px] h-[120px]'>
+                            X
+                        </button>
+                        <div class='flex justify-center h-full w-full'>
+                            <form action="{% url 'portal:react' %}" method="post"
+                                class='flex justify-center items-center flex-col mt-[40px]'>
+                                {% csrf_token %}
+                                <input value={{submission.id}} name='wordle_submission_id' readonly
+                                    class='hidden'></input>
+                                <div class='flex justify-evenly items-center text-8xl w-[90%]'>
+                                    <button name='reaction_0' value='0' action='submit'>&nbsp;😢&nbsp;</button>
+                                    <button name='reaction_1' value='1' action='submit'>&nbsp;🤯&nbsp;</button>
+                                    <button name='reaction_2' value='2' action='submit'>&nbsp;😮&nbsp;</button>
+                                    <button name='reaction_3' value='3' action='submit'>&nbsp;👏&nbsp;</button>
+                                    <button name='reaction_4' value='4' action='submit'>&nbsp;🦧&nbsp;</button>
+                                </div>
+                            </form>
+                        </div>
+                    </dialog>
+                </div>
             </div>
-            <button class='sm:min-w-[80px] rounded bg-zinc-400 text-white ml-4' onclick='scrollDiv("R")' >&gt;</button>
+            {% endfor %}
         </div>
+        <button class='sm:min-w-[80px] rounded bg-zinc-400 text-white ml-4' onclick='scrollDiv("R")'>&gt;</button>
+    </div>
     {% else %}
-        <p>No submissions today.</p>
+    <p>No submissions today.</p>
     {% endif %}
 
 
     <h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>Make a Submission</h1>
     <form action="{% url 'portal:vote' %}" method="post" class='flex justify-center items-center flex-col'>
         {% csrf_token %}
-        <legend class='text-center w-full mb-7'><i>Select your name and paste your answer to today's puzzle, then submit</i></legend>
+        <legend class='text-center w-full mb-7'><i>Select your name and paste your answer to today's puzzle, then
+                submit</i></legend>
         <select name="submitter" class='sm:w-[28.5rem] mb-3 lg:w-[250px]' required>
             <option disabled selected value> - select your name - </option>
             {% for submitter in submitters %}
-            <option value={{submitter.id}} name="submitter" id="submitter{{forloop.counter}}">{{submitter.name}}</option>
+            <option value={{submitter.id}} name="submitter" id="submitter{{forloop.counter}}">{{submitter.name}}
+            </option>
             {% endfor %}
         </select>
         <textarea name="submission_text" rows="8" required class='lg:w-[250px]'></textarea>
@@ -89,52 +98,60 @@ dialog::backdrop {
     </form>
 
     <div class='text-center mb-10'>
-        <h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>Champ of the Week</h1>
+        <h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>Champ of the Week
+        </h1>
         <i class='my-5'>Last 7 days</i>
 
         {% if weekly_champ.min_person|length == 0 %}
-            <h3 class='text-md sm:text-7xl lg:text-3xl my-5'>No champion</h3>
-        {% elif weekly_champ.min_person|length > 1  %}
-            <h3 class='text-md sm:text-7xl lg:text-3xl my-5'>We have a {{weekly_champ.min_person|length}}-way tie!</h3>
+        <h3 class='text-md sm:text-7xl lg:text-3xl my-5'>No champion</h3>
+        {% elif weekly_champ.min_person|length > 1 %}
+        <h3 class='text-md sm:text-7xl lg:text-3xl my-5'>We have a {{weekly_champ.min_person|length}}-way tie!</h3>
         {% endif %}
 
         {% if weekly_champ.min_person|length > 0 %}
-            {% for champ in weekly_champ.min_person %}
-            <p class='sm:text-6xl lg:text-3xl mt-5'>{{champ}}</p>
-            {% endfor %}
+        {% for champ in weekly_champ.min_person %}
+        <p class='sm:text-6xl lg:text-3xl mt-5'>{{champ}}</p>
+        {% endfor %}
         {% endif %}
         <i class='text-sm'>Based on the user with the fewest number of
-        guesses made this week</i>
+            guesses made this week</i>
 
     </div>
 
 
     <div class='text-center mb-10'>
-        <h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>Color Breakdown</h1>
+        <h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>Color Breakdown
+        </h1>
         <div class='w-full flex justify-center items-center flex-col'>
             <i class='my-5'>Today</i>
             <div class='flex flex-row'>
-            <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-yellow-600'>{{yg_breakdown_day.incorrect_pos_total}}&nbsp;</h3>
-            <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-green-600'>{{yg_breakdown_day.correct_pos_total}}&nbsp;</h3>
-            <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-zinc-700'>{{yg_breakdown_day.invalid}}&nbsp;</h3>
+                <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-yellow-600'>
+                    {{yg_breakdown_day.incorrect_pos_total}}&nbsp;</h3>
+                <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-green-600'>
+                    {{yg_breakdown_day.correct_pos_total}}&nbsp;</h3>
+                <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-zinc-700'>{{yg_breakdown_day.invalid}}&nbsp;</h3>
             </div>
 
             <i class='my-5'>This week</i>
             <div class='flex flex-row'>
-            <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-yellow-600'>{{yg_breakdown_week.incorrect_pos_total}}&nbsp;</h3>
-            <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-green-600'>{{yg_breakdown_week.correct_pos_total}}&nbsp;</h3>
-            <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-zinc-700'>{{yg_breakdown_week.invalid}}&nbsp;</h3>
+                <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-yellow-600'>
+                    {{yg_breakdown_week.incorrect_pos_total}}&nbsp;</h3>
+                <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-green-600'>
+                    {{yg_breakdown_week.correct_pos_total}}&nbsp;</h3>
+                <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-zinc-700'>{{yg_breakdown_week.invalid}}&nbsp;</h3>
             </div>
 
             <i class='my-5'>All time</i>
             <div class='flex flex-row'>
-            <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-yellow-600'>{{yg_breakdown_all.incorrect_pos_total}}&nbsp;</h3>
-            <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-green-600'>{{yg_breakdown_all.correct_pos_total}}&nbsp;</h3>
-            <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-zinc-700'>{{yg_breakdown_all.invalid}}&nbsp;</h3>
+                <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-yellow-600'>
+                    {{yg_breakdown_all.incorrect_pos_total}}&nbsp;</h3>
+                <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-green-600'>
+                    {{yg_breakdown_all.correct_pos_total}}&nbsp;</h3>
+                <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-zinc-700'>{{yg_breakdown_all.invalid}}&nbsp;</h3>
             </div>
         </div>
     </div>
-</div>
+</body>
 
 <script>
     function scrollDiv(direction) {
