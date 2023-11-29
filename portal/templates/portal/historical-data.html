@@ -2,59 +2,35 @@
 
 <!-- TODO: add champ of the day? -->
 <div class='bg-[#E3E3E1] text-zinc-700 h-full pt-5 sm:text-5xl lg:text-2xl overflow-x-hidden w-full text-center'>
-    <h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>Week {{week_num}} submissions</h1>
+    <h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>Week {{week_num}}
+        submissions</h1>
     <div class='text-center w-full mb-7'>
         <i>Swipe to see all from this week</i>
         <br>
         <a href="{% url 'portal:index' %}" class='underline text-blue-600'>Click to view today's submissions</a>
     </div>
 
-    {% if latest_submission_list %}
-        {% if submitters %}
-            {% for submitter in submitters %}
-                <h2 class='text-2xl sm:text-5xl lg:text-2xl text-zinc-800 font-black text-center mt-10 pt-10'>
-                    {{submitter.name}}
-                </h2>
-                {% for key, val in personal_stats.items %}
-                    {% if key == submitter.name %}
-                    <div class='flex flex-row items-center justify-center'>
-                        <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-yellow-600'>{{val.incorrect_pos_total}}&nbsp;</h3>
-                        <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-green-600'>{{val.correct_pos_total}}&nbsp;</h3>
-                        <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-zinc-700'>{{val.invalid}}&nbsp;</h3>
-                    </div>
-                    <div class='flex flex-row items-center justify-center'>
-                        <p class='mb-5 text-zinc-600'>
-                            {{ val.submitter_guess_total }} of 
-                            42 possible guesses made this 
-                            week.
-                        </p>
-                    </div>
-                    {% endif %}
-                {% endfor %}
-                <div class='flex flex-row justify-between align-center'>
-                    <div class='flex flex-row items-center overflow-y-auto text-left lg:max-w-3xl mx-auto scroll-smooth px-10' id='container'>
-                        {% for submission in latest_submission_list %}
-                        {% if submission.submitter == submitter %}
-                            <div>
-                                <!-- <a href="{% url 'portal:detail' submission.id %}"> -->
-                                <p>
-                                <br>
-                                <p class='text-center'>#{{submission.wordle_number}}</p>
-                                    <textarea readonly rows=9 class='w-[6.5em] overflow-none text-center bg-transparent overflow-y-hidden'>
-                                        {{submission.submission_text}}
-                                    </textarea>
-                                <!-- </a> -->
-                                </p>
-                                <!-- TODO: add full display here but pretty -->
-                                <!--{{ submission.submission_text }}-->
-                            </div>
-                        {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% else %}
-        <p>No submissions to show.</p>
-    {% endif %}
+    {% for submitter, data in all_submissions.items %}
+    <h2 class='text-2xl sm:text-5xl lg:text-2xl text-zinc-800 font-black text-center mt-10 pt-10'>
+        {{submitter}} {# submitter name is the key #}
+    </h2>
+    <div class='flex flex-row items-center justify-center'>
+        <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-yellow-600'>
+            {{data.personal_stats.incorrect_pos_total}}&nbsp;</h3>
+        <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-green-600'>{{data.personal_stats.correct_pos_total}}&nbsp;
+        </h3>
+        <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-zinc-700'>{{data.personal_stats.invalid}}&nbsp;</h3>
+    </div>
+    <div class='flex flex-row items-center justify-center'>
+        <p class='mb-5 text-zinc-600'>
+            {{ data.personal_stats.submitter_guess_total }} of
+            42 possible guesses made this
+            week.
+        </p>
+    </div>
+    {% with latest_submission_list=data.submissions.0 %}
+    {#{% with latest_submission_list=data.submissions }#}
+    {% include './components/puzzle_list.html' %}
+    {% endwith %}
+    {%endfor%}
 </div>

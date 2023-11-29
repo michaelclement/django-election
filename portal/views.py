@@ -143,21 +143,19 @@ def all_weekly_submissions(request):
 
     submitters = Submitter.objects.all().order_by('name')
 
-    personal_stats = {}
+    all_submissions = {} 
     for submitter in submitters:
+        all_submissions[submitter.name] = {'submissions': [], 'personal_stats': {}}
         results = helper__get_color_breakdown(window='week', submitter=submitter)
-        personal_stats[submitter.name] = results
+        all_submissions[submitter.name]['personal_stats'] = results
+        submitter_puzzles = [puzzle for puzzle in latest_submission_list if puzzle.submitter == submitter]
+        all_submissions[submitter.name]['submissions'].append(submitter_puzzles)
     
-    # TODO: move all logic/looping checks out of template and
-    # just prepare an array of submissions from the week that 
-    # can cleanly be shipped to the template.
-
     context = {
-        "latest_submission_list": latest_submission_list,
         "submitters": submitters,
-        "personal_stats": personal_stats,
         "week_num": week_num,
         "current_week_all_nums": helper__get_puzzles_in_week(week_start),
+        "all_submissions": all_submissions,
     }
 
     return render(request, "portal/historical-data.html", context)
