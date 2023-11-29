@@ -67,6 +67,7 @@ def helper__get_color_breakdown(window='all', submitter='all'):
         "incorrect_pos_total": y_sum, 
         "correct_pos_total": g_sum,
         "invalid": b_sum,
+        "green_percent": int((g_sum / (y_sum + g_sum + b_sum))*100) if None not in [y_sum, g_sum, b_sum] else '',
         "submitter_guess_total": submitter_guess_total,
     }
 

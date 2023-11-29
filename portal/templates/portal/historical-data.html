@@ -12,27 +12,34 @@
 
     {% for submitter, data in all_submissions.items %}
     {% if data.personal_stats.submitter_guess_total %}
-        <h2 class='text-2xl sm:text-5xl lg:text-2xl text-zinc-800 font-black text-center mt-10 pt-10'>
-            {{submitter}} {# submitter name is the key #}
-        </h2>
-        <div class='flex flex-row items-center justify-center'>
-            <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-yellow-600'>
-                {{data.personal_stats.incorrect_pos_total}}&nbsp;</h3>
-            <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-green-600'>{{data.personal_stats.correct_pos_total}}&nbsp;
-            </h3>
-            <h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-zinc-700'>{{data.personal_stats.invalid}}&nbsp;</h3>
-        </div>
-        <div class='flex flex-row items-center justify-center'>
-            <p class='mb-5 text-zinc-600'>
-                {{ data.personal_stats.submitter_guess_total }} of
-                42 possible guesses made this
-                week.
-            </p>
-        </div>
-        {% with latest_submission_list=data.submissions.0 %}
-        {#{% with latest_submission_list=data.submissions }#}
-        {% include './components/puzzle_list.html' %}
-        {% endwith %}
+    <h2 class='text-2xl sm:text-5xl lg:text-2xl text-zinc-800 font-black text-center mt-10 pt-10'>
+        {{submitter}} {# submitter name is the key #}
+    </h2>
+    <div class='flex flex-row items-center justify-center'>
+        {#<h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-yellow-600'>{{data.personal_stats.incorrect_pos_total}}&nbsp;</h3>#}
+        {#<h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-green-600'>{{data.personal_stats.correct_pos_total}}&nbsp;</h3>#}
+        {#<h3 class='text-md sm:text-7xl lg:text-3xl my-5 text-zinc-700'>{{data.personal_stats.invalid}}&nbsp;</h3>#}
+    </div>
+    <div class='flex flex-row items-center justify-center'>
+        <p class='text-zinc-600 p-[30px]'>
+            Has so far made
+            <span class='text-zinc-700 font-bold'>
+                {{ data.personal_stats.submitter_guess_total }}
+            </span>
+            of
+            <span class='text-zinc-700 font-bold'>
+                42
+            </span>
+            possible guesses this week, and guessed correct characters
+            <span class="text-green-600 font-bold">
+                {{data.personal_stats.green_percent}}%
+            </span> of the time.
+        </p>
+    </div>
+    {% with latest_submission_list=data.submissions.0 %}
+    {#{% with latest_submission_list=data.submissions }#}
+    {% include './components/puzzle_list.html' %}
+    {% endwith %}
     {% endif %}
     {%endfor%}
 </div>
