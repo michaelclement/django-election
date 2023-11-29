@@ -32,7 +32,7 @@ class Submitter(models.Model):
         return self.name
 
 class WordleSubmission(models.Model):
-    submission_text = models.CharField(max_length=200)
+    submission_text = models.TextField(max_length=200)
     submitter = models.ForeignKey(Submitter, on_delete=models.CASCADE)
     date_submitted = models.DateTimeField(auto_now_add=True)
     wordle_number = models.IntegerField()

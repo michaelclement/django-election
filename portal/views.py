@@ -9,6 +9,21 @@ from datetime import datetime, timedelta
 
 WORDLE_START_DATE = datetime(2021, 6, 19)
 
+def helper__get_week_dates():
+    # Get datetime objects for start/end dates of week
+    date = datetime.today()
+    # Week starts on Sunday
+    week_start = date.strptime(f"{date.strftime('%Y')}-W{date.strftime('%V')}-1", "%Y-W%W-%w") - timedelta(days=1)
+    diff = timedelta(days=7)
+    # Return start date, finish date, and week number
+    return week_start, week_start + diff, date.strftime('%V')
+
+def helper__get_puzzles_in_week(week_start):
+    # Get list of all puzzle nums that are contained in a given
+    # week. Return list of puzzle numbers.
+    puzzle_num_start = (week_start - WORDLE_START_DATE).days
+    return [num for num in range(puzzle_num_start, puzzle_num_start + 7)]
+
 def helper__get_color_breakdown(window='all', submitter='all'):
     y_sum = None
     g_sum = None
@@ -92,9 +107,9 @@ def helper__get_first_index(target_string):
 # Create your views here.
 def index(request):
     WORDLE_PUZZLE_NUM_TODAY = (datetime.today() - WORDLE_START_DATE).days
-
     latest_submission_list = WordleSubmission.objects.filter(wordle_number = WORDLE_PUZZLE_NUM_TODAY).order_by('-date_submitted')
-    submitters = Submitter.objects.all()
+    submitters = Submitter.objects.all().order_by('name')
+    week_start, week_finish, week_num = helper__get_week_dates()
 
     context = {
         "latest_submission_list": latest_submission_list,
@@ -103,6 +118,9 @@ def index(request):
         "yg_breakdown_day": helper__get_color_breakdown('today'),
         "yg_breakdown_week": helper__get_color_breakdown('week'),
         "yg_breakdown_all": helper__get_color_breakdown(),
+        "week_start_date": week_start,
+        "week_finish_date": week_finish,
+        "week_num": week_num,
     }
 
     return render(request, "portal/index.html", context)
@@ -117,24 +135,29 @@ def results(request, submitter_id):
 
 def all_weekly_submissions(request):
     delta = timedelta(days=7)
-    last_week = datetime.today().replace(hour=0, minute=0, second=0) - delta
+    week_start, week_finish, week_num = helper__get_week_dates()
 
     latest_submission_list = WordleSubmission.objects.filter(
-            date_submitted__gte = make_aware(
-                last_week
-            )).order_by('-wordle_number')
+            wordle_number__in = helper__get_puzzles_in_week(week_start)
+        ).order_by('-wordle_number')
 
-    submitters = Submitter.objects.all()
+    submitters = Submitter.objects.all().order_by('name')
 
     personal_stats = {}
     for submitter in submitters:
         results = helper__get_color_breakdown(window='week', submitter=submitter)
         personal_stats[submitter.name] = results
+    
+    # TODO: move all logic/looping checks out of template and
+    # just prepare an array of submissions from the week that 
+    # can cleanly be shipped to the template.
 
     context = {
         "latest_submission_list": latest_submission_list,
         "submitters": submitters,
         "personal_stats": personal_stats,
+        "week_num": week_num,
+        "current_week_all_nums": helper__get_puzzles_in_week(week_start),
     }
 
     return render(request, "portal/historical-data.html", context)
@@ -169,7 +192,14 @@ def vote(request):
         valid_right_position=len(green_reg.findall(target_string))
     )
 
-    new_submission.save()
+    # Make sure we aren't saving a duplicate:
+    pre_existing = WordleSubmission.objects.all().filter(
+        wordle_number=new_submission.wordle_number, 
+        submitter=new_submission.submitter
+    )
+    if len(pre_existing) <= 0:
+        new_submission.save()
+
     return HttpResponseRedirect("/portal")
 
 def react(request):

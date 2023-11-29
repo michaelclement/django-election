@@ -2,7 +2,7 @@
 
 <!-- TODO: add champ of the day? -->
 <div class='bg-[#E3E3E1] text-zinc-700 h-full pt-5 sm:text-5xl lg:text-2xl overflow-x-hidden w-full text-center'>
-    <h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>This Week's Submissions</h1>
+    <h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>Week {{week_num}} submissions</h1>
     <div class='text-center w-full mb-7'>
         <i>Swipe to see all from this week</i>
         <br>
@@ -24,7 +24,9 @@
                     </div>
                     <div class='flex flex-row items-center justify-center'>
                         <p class='mb-5 text-zinc-600'>
-                            {{ val.submitter_guess_total }} of 42 possible guesses made
+                            {{ val.submitter_guess_total }} of 
+                            42 possible guesses made this 
+                            week.
                         </p>
                     </div>
                     {% endif %}
