@@ -94,7 +94,6 @@ def helper__get_ranking_of_window(puzzle_list):
     sorted_list = [] # for set of all participants
 
     for person in submitters:
-        date = datetime.today()
         subs_for_person = WordleSubmission.objects.filter(
             wordle_number__in = puzzle_list,
             submitter=person
@@ -108,10 +107,10 @@ def helper__get_ranking_of_window(puzzle_list):
         for i in range(len(puzzle_list) - len(subs_for_person)):
             individual_total += 6
 
-        if individual_total < min_score and individual_total > 0 and individual_total < min_score - 1:
+        if individual_total < min_score and individual_total > 0:
             min_score = individual_total
             champs = [person.name]
-        elif individual_total == min_score and individual_total < min_score - 1:
+        elif individual_total == min_score:
             # we have a tie
             champs.append(person.name)
 
