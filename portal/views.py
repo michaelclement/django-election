@@ -88,16 +88,13 @@ def helper__get_ranking_of_window(puzzle_list):
     # puzzle_list is a list of puzzle numbers, e.g., [882, 883, ...]
 
     submitters = Submitter.objects.all()
-    min_score = len(puzzle_list)*6
+    min_score = (len(puzzle_list)*6)+1
 
     champs = [] # we can have a tie of champs
     sorted_list = [] # for set of all participants
 
     for person in submitters:
         date = datetime.today()
-        week = date.strftime("%V")
-
-        week_start, week_finish, week_num = helper__get_week_dates()
         subs_for_person = WordleSubmission.objects.filter(
             wordle_number__in = puzzle_list,
             submitter=person
