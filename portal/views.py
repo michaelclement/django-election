@@ -3,13 +3,22 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from django.db.models import Sum
-from .models import WordleSubmission, Submitter
+from .models import WordleSubmission, Submitter, Champion
 
 import re
 from datetime import datetime, timedelta
 import calendar
 
 WORDLE_START_DATE = datetime(2021, 6, 19)
+
+def helper__month_mangler(date=datetime.today().replace(day=1)):
+    start_of_month = date
+    days_in_month = calendar.monthrange(start_of_month.year, start_of_month.month)[1]
+
+    all_puzzles_in_month = helper__get_puzzles_in_date_range(start_of_month, days_in_month)
+    scores = helper__get_ranking_of_window(all_puzzles_in_month)
+
+    return start_of_month, days_in_month, all_puzzles_in_month, scores
 
 def helper__get_week_dates():
     # Get datetime objects for start/end dates of week
@@ -243,17 +252,47 @@ def react(request):
 
 def leaderboard(request):
     # TODO: does the calendar module add too much bloat for such a simple task?
-    start_of_month = datetime.today().replace(day=1)
-    days_in_month = calendar.monthrange(start_of_month.year, start_of_month.month)[1]
+    start_of_month, days_in_month, all_puzzles_in_month, scores = helper__month_mangler()
 
-    all_puzzles_in_month = helper__get_puzzles_in_date_range(start_of_month, days_in_month)
-    scores = helper__get_ranking_of_window(all_puzzles_in_month)
+    # Update list of champions on the first of the month
+    if datetime.today().day == 1:
+        start_of_last_month = (datetime.today() - timedelta(days=1)).replace(day=1)
+        sm, dim, apim, s = helper__month_mangler(start_of_last_month)
+
+        submitters = Submitter.objects.all()
+        # TODO: allow ties?
+        champname = s['all_scores'][0]['name'] # champ of specified month
+        champ_submitter = None
+        for person in submitters:
+            if person.name == champname:
+                champ_submitter = person
+
+        # add a new champ for specified month
+        sm = sm.replace(hour=0, minute=0, second=0)
+        new_monthly_champ = Champion(
+            submitter=champ_submitter,
+            window_type='month',
+            window_start=sm, # start of last month
+            window_end=sm + timedelta(days=dim-1), # last day of last month
+            num_guesses=s['all_scores'][0]['total'], # top champ score - we choose the alphabetical winner if a tie
+            num_possible_guesses=dim*6,
+        )
+        already_exists = Champion.objects.filter(
+            window_start__month=sm.month
+        )
+        if already_exists.count() == 0:
+            new_monthly_champ.save()
+
+    champions = Champion.objects.filter(
+        window_type='month',
+    ).order_by('window_start')
 
     context = {
         'scores': scores,
         'month_name': start_of_month.strftime('%B'),
         'possible_guesses': len(all_puzzles_in_month) * 6,
         'num_puzzles': len(all_puzzles_in_month),
+        'champions': champions,
     }
 
     return render(request, "portal/leaderboard.html", context)

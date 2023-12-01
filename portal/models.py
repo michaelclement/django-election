@@ -30,6 +30,24 @@ class Submitter(models.Model):
 
     def __str__(self):
         return self.name
+    
+# TODO: test this out - we'll want a method that creates monthly
+# champion entries automatically on the first of the month (for
+# previous month)
+class Champion(models.Model):
+    submitter = models.ForeignKey(Submitter, on_delete=models.CASCADE)
+    # e.g., daily, monthly, yearly
+    window_type = models.CharField(max_length=30)
+
+    # dates comprising the window, e.g., first and last of month
+    window_start = models.DateTimeField()
+    window_end = models.DateTimeField()
+
+    num_guesses = models.IntegerField()
+    num_possible_guesses = models.IntegerField()
+
+    def __str__(self):
+        return self.submitter.name
 
 class WordleSubmission(models.Model):
     submission_text = models.TextField(max_length=200)
