@@ -16,7 +16,7 @@
     <div class='text-center w-full mb-7'>
         <i>Swipe to see all from today</i>
         <br>
-        <a href="{% url 'portal:history' %}" class='underline text-blue-600'>Click to view all from this week</a>
+        <a href="{% url 'portal:history' %}" class='underline text-blue-600'>All Week {{week_num}} submissions</a>
     </div>
 
     {# Relies on latest_submission_list being defined #}
@@ -39,18 +39,21 @@
     </form>
 
     <div class='text-center mb-10'>
-        <h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>Champ of the Week
+        <h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>
+            👑&nbsp;Champ of the Week&nbsp;👑
         </h1>
         <i class='my-5'>Week {{week_num}} - {{week_start_date|date:'M. d'}} to {{week_finish_date|date:'M. d'}}</i>
+        <br>
+        <a href="{% url 'portal:leaderboard' %}" class='underline text-blue-600'>Monthly Leaderboard</a>
 
-        {% if weekly_champ.min_person|length == 0 %}
+        {% if weekly_champ.champs|length == 0 %}
         <h3 class='text-md sm:text-7xl lg:text-3xl my-5'>No champion</h3>
-        {% elif weekly_champ.min_person|length > 1 %}
-        <h3 class='text-md sm:text-7xl lg:text-3xl my-5'>We have a {{weekly_champ.min_person|length}}-way tie!</h3>
+        {% elif weekly_champ.champs|length > 1 %}
+        <h3 class='text-md sm:text-7xl lg:text-3xl my-5'>We have a {{weekly_champ.champs|length}}-way tie!</h3>
         {% endif %}
 
-        {% if weekly_champ.min_person|length > 0 %}
-        {% for champ in weekly_champ.min_person %}
+        {% if weekly_champ.champs|length > 0 %}
+        {% for champ in weekly_champ.champs %}
         <p class='sm:text-6xl lg:text-3xl mt-5'>{{champ}}</p>
         {% endfor %}
         {% endif %}

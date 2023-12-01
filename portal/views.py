@@ -4,8 +4,10 @@ from django.urls import reverse
 from django.utils.timezone import make_aware
 from django.db.models import Sum
 from .models import WordleSubmission, Submitter
+
 import re
 from datetime import datetime, timedelta
+import calendar
 
 WORDLE_START_DATE = datetime(2021, 6, 19)
 
@@ -18,13 +20,17 @@ def helper__get_week_dates():
     # Return start date, finish date, and week number
     return week_start, week_start + diff, date.strftime('%V')
 
-def helper__get_puzzles_in_week(week_start):
+def helper__get_puzzles_in_date_range(start_date, window_size=7):
     # Get list of all puzzle nums that are contained in a given
-    # week. Return list of puzzle numbers.
-    puzzle_num_start = (week_start - WORDLE_START_DATE).days
-    return [num for num in range(puzzle_num_start, puzzle_num_start + 7)]
+    # start date + window. E.g., a sunday + 7 gives us all puzzles in 
+    # that week. 
+    # Return list of puzzle numbers.
+
+    puzzle_num_start = (start_date - WORDLE_START_DATE).days
+    return [num for num in range(puzzle_num_start, puzzle_num_start + window_size)]
 
 def helper__get_color_breakdown(window='all', submitter='all'):
+    # TODO: do we really need this function?
     y_sum = None
     g_sum = None
     submitter_guess_total = None
@@ -32,20 +38,18 @@ def helper__get_color_breakdown(window='all', submitter='all'):
 
     # add a model for color data and just pull it here
     if window == 'week':
-        # date = datetime.today()
-        # week = date.strftime("%V")
         week_start, week_finish, week = helper__get_week_dates()
 
         if submitter != 'all':
             weekly_puzzles = WordleSubmission.objects.filter(
-                wordle_number__in = helper__get_puzzles_in_week(week_start),
+                wordle_number__in = helper__get_puzzles_in_date_range(week_start),
                 submitter=submitter.id
             )
 
             submitter_guess_total = weekly_puzzles.aggregate(Sum('num_guesses'))['num_guesses__sum']
         else:
             weekly_puzzles = WordleSubmission.objects.filter(
-                wordle_number__in = helper__get_puzzles_in_week(week_start),
+                wordle_number__in = helper__get_puzzles_in_date_range(week_start),
             )
 
         y_sum = weekly_puzzles.aggregate(Sum('valid_wrong_position'))['valid_wrong_position__sum']
@@ -71,12 +75,14 @@ def helper__get_color_breakdown(window='all', submitter='all'):
         "submitter_guess_total": submitter_guess_total,
     }
 
-def helper__get_champion_of_week():
-    submitters = Submitter.objects.all()
-    total_chances = 42 #(6 chances * 7 days)
+def helper__get_ranking_of_window(puzzle_list):
+    # puzzle_list is a list of puzzle numbers, e.g., [882, 883, ...]
 
-    min_score = 43
-    min_person = [] # we can have a tie
+    submitters = Submitter.objects.all()
+    min_score = len(puzzle_list)*6
+
+    champs = [] # we can have a tie of champs
+    sorted_list = [] # for set of all participants
 
     for person in submitters:
         date = datetime.today()
@@ -84,7 +90,7 @@ def helper__get_champion_of_week():
 
         week_start, week_finish, week_num = helper__get_week_dates()
         subs_for_person = WordleSubmission.objects.filter(
-            wordle_number__in = helper__get_puzzles_in_week(week_start),
+            wordle_number__in = puzzle_list,
             submitter=person
         ).order_by('-wordle_number')
 
@@ -93,24 +99,28 @@ def helper__get_champion_of_week():
             individual_total += sub.num_guesses
 
         # Account for days not yet submitted
-        for i in range(7 - len(subs_for_person)):
+        for i in range(len(puzzle_list) - len(subs_for_person)):
             individual_total += 6
 
-        if individual_total < min_score and individual_total > 0 and individual_total < 42:
+        if individual_total < min_score and individual_total > 0 and individual_total < min_score - 1:
             min_score = individual_total
-            min_person = [person.name]
-        elif individual_total == min_score and individual_total < 42:
+            champs = [person.name]
+        elif individual_total == min_score and individual_total < min_score - 1:
             # we have a tie
-            min_person.append(person.name)
+            champs.append(person.name)
 
-    return {"min_score": min_score, "min_person": min_person}
+        # Collect everyone's score so we can rank overall
+        sorted_list.append({"name": person.name, "total": individual_total})
 
+    # Ranking of all players for given time window, sorted best to worst
+    sorted_list = sorted(sorted_list, key=lambda s: s['total'])
+
+    return {"min_score": min_score, "champs": champs, "all_scores": sorted_list}
 
 def helper__get_first_index(target_string):
     for index, char in enumerate(target_string):
         if char in f'\U00002B1B\U0001f7e8\U0001f7e9\U00002b1c':
             return index
-
 
 # Create your views here.
 def index(request):
@@ -122,7 +132,9 @@ def index(request):
     context = {
         "latest_submission_list": latest_submission_list,
         "submitters": submitters,
-        "weekly_champ": helper__get_champion_of_week(),
+        "weekly_champ": helper__get_ranking_of_window(
+            helper__get_puzzles_in_date_range(week_start)
+        ),
         "yg_breakdown_day": helper__get_color_breakdown('today'),
         "yg_breakdown_week": helper__get_color_breakdown('week'),
         "yg_breakdown_all": helper__get_color_breakdown(),
@@ -146,7 +158,7 @@ def all_weekly_submissions(request):
     week_start, week_finish, week_num = helper__get_week_dates()
 
     latest_submission_list = WordleSubmission.objects.filter(
-        wordle_number__in = helper__get_puzzles_in_week(week_start)
+        wordle_number__in = helper__get_puzzles_in_date_range(week_start)
     ).order_by('-wordle_number')
 
     submitters = Submitter.objects.all().order_by('name')
@@ -162,7 +174,7 @@ def all_weekly_submissions(request):
     context = {
         "submitters": submitters,
         "week_num": week_num,
-        "current_week_all_nums": helper__get_puzzles_in_week(week_start),
+        "current_week_all_nums": helper__get_puzzles_in_date_range(week_start),
         "all_submissions": all_submissions,
     }
 
@@ -228,3 +240,20 @@ def react(request):
     wordle_submission.save()
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def leaderboard(request):
+    # TODO: does the calendar module add too much bloat for such a simple task?
+    start_of_month = datetime.today().replace(day=1)
+    days_in_month = calendar.monthrange(start_of_month.year, start_of_month.month)[1]
+
+    all_puzzles_in_month = helper__get_puzzles_in_date_range(start_of_month, days_in_month)
+    scores = helper__get_ranking_of_window(all_puzzles_in_month)
+
+    context = {
+        'scores': scores,
+        'month_name': start_of_month.strftime('%B'),
+        'possible_guesses': len(all_puzzles_in_month) * 6,
+        'num_puzzles': len(all_puzzles_in_month),
+    }
+
+    return render(request, "portal/leaderboard.html", context)
