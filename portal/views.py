@@ -23,11 +23,16 @@ def helper__month_mangler(date=datetime.today().replace(day=1)):
 def helper__get_week_dates():
     # Get datetime objects for start/end dates of week
     date = datetime.today()
+    iso_week_date = date.strftime('%V')
     # Week starts on Sunday
-    week_start = date.strptime(f"{date.strftime('%Y')}-W{date.strftime('%V')}-1", "%Y-W%W-%w") - timedelta(days=1)
-    diff = timedelta(days=7)
+    if date.day == 3: #3 is sunday for some reason..
+        iso_week_date = int(iso_week_date) + 1
+        week_start = date.strptime(f"{date.strftime('%Y')}-W{iso_week_date}-1", "%Y-W%W-%w") - timedelta(days=1)
+    else: # we're part-way into a week
+        week_start = date.strptime(f"{date.strftime('%Y')}-W{iso_week_date}-1", "%Y-W%W-%w") - timedelta(days=1)
+
     # Return start date, finish date, and week number
-    return week_start, week_start + diff, date.strftime('%V')
+    return week_start, week_start + timedelta(days=7), iso_week_date
 
 def helper__get_puzzles_in_date_range(start_date, window_size=7):
     # Get list of all puzzle nums that are contained in a given
@@ -159,7 +164,6 @@ def results(request, submitter_id):
     return HttpResponse(response % submitter_id)
 
 def all_weekly_submissions(request):
-    delta = timedelta(days=7)
     week_start, week_finish, week_num = helper__get_week_dates()
 
     latest_submission_list = WordleSubmission.objects.filter(
@@ -170,11 +174,14 @@ def all_weekly_submissions(request):
 
     all_submissions = {} 
     for submitter in submitters:
-        all_submissions[submitter.name] = {'submissions': [], 'personal_stats': {}}
-        results = helper__get_color_breakdown(window='week', submitter=submitter)
-        all_submissions[submitter.name]['personal_stats'] = results
-        submitter_puzzles = [puzzle for puzzle in latest_submission_list if puzzle.submitter == submitter]
-        all_submissions[submitter.name]['submissions'].append(submitter_puzzles)
+        all_submissions[submitter.name] = {
+            'submissions': [[
+                puzzle for puzzle in latest_submission_list if puzzle.submitter == submitter
+            ]],
+            'personal_stats': helper__get_color_breakdown(
+                window='week', submitter=submitter
+            )
+        }
     
     context = {
         "submitters": submitters,
