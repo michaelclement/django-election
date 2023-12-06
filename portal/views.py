@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.timezone import make_aware
@@ -6,6 +6,7 @@ from django.db.models import Sum
 from .models import WordleSubmission, Submitter, Champion
 
 import re
+import json
 from datetime import datetime, timedelta
 import calendar
 
@@ -193,10 +194,6 @@ def all_weekly_submissions(request):
     return render(request, "portal/historical-data.html", context)
 
 def vote(request):
-    # Hacky workaround to enable two forms on index page... 
-    if 'wordle_submission_id' in request.POST.keys():
-        return react(request)
-
     submitter = get_object_or_404(Submitter, pk=request.POST["submitter"])
 
     target_string = request.POST["submission_text"]
@@ -233,25 +230,34 @@ def vote(request):
     return HttpResponseRedirect("/portal")
 
 def react(request):
-    # Get the submission we're reacting to
-    wordle_submission = get_object_or_404(WordleSubmission, pk=request.POST["wordle_submission_id"])
+    post_data = json.load(request)
+    pk = post_data['wordle_submission_id']
 
-    rpk = request.POST.keys()
-    if "reaction_0" in rpk:
+    # Get the submission we're reacting to
+    wordle_submission = get_object_or_404(WordleSubmission, pk=pk)
+
+    res = 0
+    if post_data['emojiId'] == 0:
         wordle_submission.sad_reactions += 1
-    elif "reaction_1" in rpk:
+        res = wordle_submission.sad_reactions
+    elif post_data['emojiId'] == 1:
         wordle_submission.mind_blown_reactions += 1
-    elif "reaction_2" in rpk:
+        res = wordle_submission.mind_blown_reactions
+    elif post_data['emojiId'] == 2:
         wordle_submission.wow_reactions += 1
-    elif "reaction_3" in rpk:
+        res = wordle_submission.wow_reactions
+    elif post_data['emojiId'] == 3:
         wordle_submission.clap_reactions += 1
+        res = wordle_submission.clap_reactions
     else:
         wordle_submission.monkey_reactions += 1
+        res = wordle_submission.monkey_reactions
 
     # Update
     wordle_submission.save()
 
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    # get the number of each emoji from that sub: 
+    return JsonResponse({'reactionList': wordle_submission.reaction_list})
 
 def leaderboard(request):
     # TODO: does the calendar module add too much bloat for such a simple task?
