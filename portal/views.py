@@ -17,7 +17,7 @@ def helper__month_mangler(date=datetime.today().replace(day=1)):
     days_in_month = calendar.monthrange(start_of_month.year, start_of_month.month)[1]
 
     all_puzzles_in_month = helper__get_puzzles_in_date_range(start_of_month, days_in_month)
-    scores = helper__get_ranking_of_window(all_puzzles_in_month)
+    scores = helper__get_ranking_of_window(all_puzzles_in_month, True)
 
     return start_of_month, days_in_month, all_puzzles_in_month, scores
 
@@ -90,8 +90,10 @@ def helper__get_color_breakdown(window='all', submitter='all'):
         "submitter_guess_total": submitter_guess_total,
     }
 
-def helper__get_ranking_of_window(puzzle_list):
-    # puzzle_list is a list of puzzle numbers, e.g., [882, 883, ...]
+def helper__get_ranking_of_window(puzzle_list, pad_to_current_day_only=False):
+    # puzzle_list: list of puzzle numbers, e.g., [882, 883, ...]
+    # pad_to_current_day_only: indicates whether or not we just want to pad up to 
+    #   the current day of the month
 
     submitters = Submitter.objects.all()
     min_score = (len(puzzle_list)*6)+1
@@ -109,8 +111,15 @@ def helper__get_ranking_of_window(puzzle_list):
         for sub in subs_for_person:
             individual_total += sub.num_guesses
 
-        # Account for days not yet submitted
-        for i in range(len(puzzle_list) - len(subs_for_person)):
+        # Account for days not yet submitted by "padding" the guess count with
+        # 6s on days when the user hasn't submitted a guess yet. 
+        #
+        # We take two approaches. If the optional argument pad_to_current_day_only is true,
+        # we're trying to calculate the champ of the month, in which case we
+        # pad up to the current day of the month. Otherwise, we just pad up
+        # to the length of puzzle_list
+        padding = len(puzzle_list) if not pad_to_current_day_only else datetime.today().day
+        for i in range(padding - len(subs_for_person)):
             individual_total += 6
 
         if individual_total < min_score and individual_total > 0:
