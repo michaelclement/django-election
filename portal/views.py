@@ -12,12 +12,12 @@ import calendar
 
 WORDLE_START_DATE = datetime(2021, 6, 19)
 
-def helper__month_mangler(date=datetime.today().replace(day=1)):
+def helper__month_mangler(date=datetime.today().replace(day=1), pad_to_current_day_only=True):
     start_of_month = date
     days_in_month = calendar.monthrange(start_of_month.year, start_of_month.month)[1]
 
     all_puzzles_in_month = helper__get_puzzles_in_date_range(start_of_month, days_in_month)
-    scores = helper__get_ranking_of_window(all_puzzles_in_month, True)
+    scores = helper__get_ranking_of_window(all_puzzles_in_month, pad_to_current_day_only)
 
     return start_of_month, days_in_month, all_puzzles_in_month, scores
 
@@ -275,7 +275,7 @@ def leaderboard(request):
     # Update list of champions on the first of the month
     if datetime.today().day == 1:
         start_of_last_month = (datetime.today() - timedelta(days=1)).replace(day=1)
-        sm, dim, apim, s = helper__month_mangler(start_of_last_month)
+        sm, dim, apim, s = helper__month_mangler(start_of_last_month, False)
 
         submitters = Submitter.objects.all()
         # TODO: allow ties?
@@ -303,7 +303,7 @@ def leaderboard(request):
 
     champions = Champion.objects.filter(
         window_type='month',
-    ).order_by('window_start')
+    ).order_by('-window_start')
 
     context = {
         'scores': scores,
