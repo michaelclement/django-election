@@ -26,7 +26,7 @@ def helper__get_week_dates():
     date = datetime.today()
     iso_week_date = date.strftime('%V')
     # Week starts on Sunday
-    if date.day == 3: #3 is sunday for some reason..
+    if date.day == 6: #3 is sunday for some reason.. - sunday SHOULD be 6
         iso_week_date = int(iso_week_date) + 1
         week_start = date.strptime(f"{date.strftime('%Y')}-W{iso_week_date}-1", "%Y-W%W-%w") - timedelta(days=1)
     else: # we're part-way into a week
