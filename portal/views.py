@@ -308,7 +308,7 @@ def leaderboard(request):
     context = {
         'scores': scores,
         'month_name': start_of_month.strftime('%B'),
-        'possible_guesses': len(all_puzzles_in_month) * 6,
+        'possible_guesses': datetime.today().day * 6, # All guesses up to today
         'num_puzzles': len(all_puzzles_in_month),
         'champions': champions,
     }
