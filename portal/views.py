@@ -142,12 +142,59 @@ def helper__get_first_index(target_string):
         if char in f'\U00002B1B\U0001f7e8\U0001f7e9\U00002b1c':
             return index
 
+def helper__save_latest_champ(window_type='month'):
+    if window_type == 'month':
+        start_date, delta, apim, scores = helper__month_mangler(pad_to_current_day_only=False)
+    elif window_type == 'week' and datetime.today().strftime("%A") == 'Sunday':
+        start_date = datetime.today() - timedelta(days=7) # Last Sunday
+        scores = helper__get_ranking_of_window(
+            helper__get_puzzles_in_date_range(start_date)
+        )
+        delta = 7
+    else:
+        return False # Don't do anything
+
+    submitters = Submitter.objects.all()
+    champname = scores['all_scores'][0]['name'] # champ of specified window
+    champ_submitter = None
+    for person in submitters:
+        if person.name == champname:
+            champ_submitter = person
+
+    # add a new champ for specified window (month or week)
+    start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    new_champ = Champion(
+        submitter=champ_submitter,
+        window_type=window_type,
+        window_start=start_date,
+        window_end=start_date + timedelta(days=delta),
+        num_guesses=scores['all_scores'][0]['total'], # top champ score - we choose the alphabetical winner if a tie
+        num_possible_guesses=delta*6,
+    )
+
+    already_exists = Champion.objects.filter(
+        window_start=start_date
+    ).filter(window_type=window_type)
+
+    if already_exists.count() == 0:
+        new_champ.save()
+
 # Create your views here.
 def index(request):
     WORDLE_PUZZLE_NUM_TODAY = (datetime.today() - WORDLE_START_DATE).days
     latest_submission_list = WordleSubmission.objects.filter(wordle_number = WORDLE_PUZZLE_NUM_TODAY).order_by('-date_submitted')
     submitters = Submitter.objects.all().order_by('name')
     week_start, week_finish, week_num = helper__get_week_dates()
+
+    # Save last week's champ if today is sunday (handled internal to func)
+    helper__save_latest_champ(window_type='week')
+
+    # Get the latest 4 weekly champs to display
+    index = Champion.objects.count()
+    index = 0 if index < 4 else index - 4
+    previous_four_weekly_champions = Champion.objects.filter(
+        window_type='week',
+    ).order_by('-window_start')[index:]
 
     context = {
         "latest_submission_list": latest_submission_list,
@@ -161,6 +208,7 @@ def index(request):
         "week_start_date": week_start,
         "week_finish_date": week_finish,
         "week_num": week_num,
+        "champions": previous_four_weekly_champions,
     }
 
     return render(request, "portal/index.html", context)
@@ -274,32 +322,7 @@ def leaderboard(request):
 
     # Update list of champions on the first of the month
     if datetime.today().day == 1:
-        start_of_last_month = (datetime.today() - timedelta(days=1)).replace(day=1)
-        sm, dim, apim, s = helper__month_mangler(start_of_last_month, False)
-
-        submitters = Submitter.objects.all()
-        # TODO: allow ties?
-        champname = s['all_scores'][0]['name'] # champ of specified month
-        champ_submitter = None
-        for person in submitters:
-            if person.name == champname:
-                champ_submitter = person
-
-        # add a new champ for specified month
-        sm = sm.replace(hour=0, minute=0, second=0)
-        new_monthly_champ = Champion(
-            submitter=champ_submitter,
-            window_type='month',
-            window_start=sm, # start of last month
-            window_end=sm + timedelta(days=dim-1), # last day of last month
-            num_guesses=s['all_scores'][0]['total'], # top champ score - we choose the alphabetical winner if a tie
-            num_possible_guesses=dim*6,
-        )
-        already_exists = Champion.objects.filter(
-            window_start__month=sm.month
-        )
-        if already_exists.count() == 0:
-            new_monthly_champ.save()
+        helper__save_latest_champ()
 
     champions = Champion.objects.filter(
         window_type='month',
