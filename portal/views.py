@@ -144,7 +144,10 @@ def helper__get_first_index(target_string):
 
 def helper__save_latest_champ(window_type='month'):
     if window_type == 'month':
-        start_date, delta, apim, scores = helper__month_mangler(pad_to_current_day_only=False)
+        # Get first day of previous month
+        sd = (datetime.today() - timedelta(days=datetime.today().day)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        # --
+        start_date, delta, apim, scores = helper__month_mangler(date=sd, pad_to_current_day_only=False)
     elif window_type == 'week' and datetime.today().strftime("%A") == 'Sunday':
         start_date = datetime.today() - timedelta(days=7) # Last Sunday
         scores = helper__get_ranking_of_window(
