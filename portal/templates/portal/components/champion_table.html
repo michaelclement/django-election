@@ -1,5 +1,6 @@
 {% if champions %}
-<h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>Previous {{window_type}}ly Champs</h1>
+<h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>Previous {{window_type}}ly
+    Champs</h1>
 <br>
 <br>
 <table class="border-collapse m-auto table-auto w-[95%] sm:text-6xl lg:text-lg">
@@ -12,12 +13,12 @@
     </thead>
     <tbody class="bg-white">
         {% for champion in champions %}
-        <tr>
+            {% if forloop.counter <= 5 %} <tr>
             <td class="border-b border-slate-100 p-4 pl-8 text-zinc-400">
                 {% if window_type == 'Month'%}
-                    {{champion.window_start|date:'M., Y'}}
+                {{champion.window_start|date:'M., Y'}}
                 {% elif window_type == 'Week' %}
-                    {{champion.window_start|date:'M. d'}}
+                {{champion.window_start|date:'M. d'}}
                 {% endif%}
             </td>
             <td class="border-b border-slate-100 p-4 pl-8">
@@ -26,9 +27,10 @@
             <td class="border-b border-slate-100 p-4 pl-8">
                 {{champion.num_guesses}}
                 {# Hacky way to get a percentage: #}
-                <span class="text-zinc-400">({% widthratio champion.num_guesses champion.num_possible_guesses 100 %}%)</span>
+                <span class="text-zinc-400">({% widthratio champion.num_guesses champion.num_possible_guesses 100%}%)</span>
             </td>
-        </tr>
+            </tr>
+            {%endif%}
         {%endfor%}
     </tbody>
 </table>

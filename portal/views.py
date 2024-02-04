@@ -195,9 +195,9 @@ def index(request):
     # Get the latest 4 weekly champs to display
     index = Champion.objects.count()
     index = 0 if index < 4 else index - 4
-    previous_four_weekly_champions = Champion.objects.filter(
+    previous_weekly_champions = Champion.objects.filter(
         window_type='week',
-    ).order_by('-window_start')[index:]
+    ).order_by('-window_start')
 
     context = {
         "latest_submission_list": latest_submission_list,
@@ -211,7 +211,7 @@ def index(request):
         "week_start_date": week_start,
         "week_finish_date": week_finish,
         "week_num": week_num,
-        "champions": previous_four_weekly_champions,
+        "champions": previous_weekly_champions,
     }
 
     return render(request, "portal/index.html", context)
