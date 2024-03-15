@@ -253,6 +253,7 @@ def all_weekly_submissions(request):
 
     return render(request, "portal/historical-data.html", context)
 
+# This function is how users actually submit a wordle (TODO: rename)
 def vote(request):
     submitter = get_object_or_404(Submitter, pk=request.POST["submitter"])
 
@@ -260,7 +261,8 @@ def vote(request):
     # Replace "X/6" with "7/6" if they failed to solve puzzle
     target_string = target_string.replace('X', '7')
 
-    re_result = re.search(r"^\D*(\d+).*(\d)\/", target_string)
+    # wordle number is 1st capture group, 2nd is score. Ignore non-capture groups
+    re_result = re.search(r"^\D*(\d{1,3}(?:,\d{3})*(?:\.\d+)?).*(\d)\/", target_string)
 
     # Emoji regexes
     black_reg = re.compile(f'[\U00002B1B\U00002B1C]')
@@ -272,7 +274,7 @@ def vote(request):
     new_submission = WordleSubmission(
         submission_text = target_string[earliest_idx:].strip(),
         submitter=submitter,
-        wordle_number=re_result.group(1),
+        wordle_number=re_result.group(1).replace(",", ""),
         num_guesses=re_result.group(2),
         invalid=len(black_reg.findall(target_string)),
         valid_wrong_position=len(yellow_reg.findall(target_string)),
