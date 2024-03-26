@@ -205,9 +205,9 @@ def index(request):
         "weekly_champ": helper__get_ranking_of_window(
             helper__get_puzzles_in_date_range(week_start)
         ),
-        "yg_breakdown_day": helper__get_color_breakdown('today'),
-        "yg_breakdown_week": helper__get_color_breakdown('week'),
-        "yg_breakdown_all": helper__get_color_breakdown(),
+        # "yg_breakdown_day": helper__get_color_breakdown('today'),
+        # "yg_breakdown_week": helper__get_color_breakdown('week'),
+        # "yg_breakdown_all": helper__get_color_breakdown(),
         "week_start_date": week_start,
         "week_finish_date": week_finish,
         "week_num": week_num,

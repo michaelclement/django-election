@@ -1,5 +1,5 @@
 {% if champions %}
-<h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>Previous {{window_type}}ly
+<h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10 dark:text-neutral-200'>Previous {{window_type}}ly
     Champs</h1>
 <br>
 <br>
@@ -11,7 +11,7 @@
             <th class="border-b font-bold p-4 pl-8 pt-0 pb-3 text-left">Guesses</th>
         </tr>
     </thead>
-    <tbody class="bg-white">
+    <tbody class="bg-white dark:bg-zinc-700">
         {% for champion in champions %}
             {% if forloop.counter <= 5 %} <tr>
             <td class="border-b border-slate-100 p-4 pl-8 text-zinc-400">

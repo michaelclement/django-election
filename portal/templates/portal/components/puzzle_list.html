@@ -1,7 +1,8 @@
 {% if latest_submission_list %}
 <div class='flex flex-row justify-between align-center'>
     {% if scroll_buttons_enabled %}
-    <button class='sm:min-w-[80px] rounded bg-zinc-400 text-white mr-4' onclick='scrollDiv("L")'>&lt;</button>
+    <button class='sm:min-w-[80px] rounded bg-zinc-400 text-white mr-4 dark:bg-zinc-700'
+        onclick='scrollDiv("L")'>&lt;</button>
     {% endif %}
     <div class='flex flex-row items-center overflow-y-auto text-left lg:max-w-3xl mx-auto scroll-smooth px-10'
         id='container'>
@@ -15,20 +16,20 @@
                     </textarea>
             <div class='flex justify-start items-start flex-wrap reaction-list'>
                 {% for reaction in submission.reaction_list %}
-                <div class='rounded-lg bg-zinc-300 px-2 py-2 text-zinc-500 mr-4 mb-4'>
+                <div class='rounded-lg bg-zinc-300 px-2 py-2 text-zinc-500 mr-4 mb-4 dark:bg-zinc-700 dark:text-neutral-200'>
                     {{reaction}}
                 </div>
                 {% endfor %}
             </div>
             <div class='flex flex-col justify-center w-full'>
                 <button onclick='showEmojiPicker({{submission.id}})'
-                    class='rounded-lg bg-zinc-300 px-2 py-0 w-full h-[100px] m-auto mb-[30px]'>
+                    class='rounded-lg bg-zinc-300 px-2 py-0 w-full h-[100px] m-auto mb-[30px] dark:bg-zinc-700'>
                     +Reaction
                 </button>
 
-                <dialog id='{{submission.id}}' class='w-[90vw] max-w-[900px] h-[425px] rounded-xl'>
+                <dialog id='{{submission.id}}' class='w-[90vw] max-w-[900px] h-[425px] rounded-xl dark:bg-zinc-500'>
                     <button onclick='hideEmojiPicker({{submission.id}})'
-                        class='absolute top-0 right-0 rounded-full bg-zinc-300 px-2 py-0 mr-3 mt-3 w-[120px] h-[120px]'>
+                        class='absolute top-0 right-0 rounded-full bg-zinc-300 px-2 py-0 mr-3 mt-3 w-[120px] h-[120px] dark:bg-zinc-700 dark:text-neutral-200'>
                         X
                     </button>
                     <div class='flex justify-center h-full w-full'>
@@ -53,7 +54,8 @@
         {% endfor %}
     </div>
     {% if scroll_buttons_enabled %}
-    <button class='sm:min-w-[80px] rounded bg-zinc-400 text-white ml-4' onclick='scrollDiv("R")'>&gt;</button>
+    <button class='sm:min-w-[80px] rounded bg-zinc-400 text-white ml-4 dark:bg-zinc-700'
+        onclick='scrollDiv("R")'>&gt;</button>
     {% endif %}
 </div>
 <script>
@@ -98,6 +100,10 @@
     }
 
     function make_post(target, submissionId, emojiId) {
+
+        // close modal before sending request to improve perceived responsiveness
+        hideEmojiPicker(submissionId);
+
         const csrftoken = getCookie('csrftoken');
         fetch(`${window.location.origin}/portal/react/`, {
             method: 'POST',
@@ -122,12 +128,10 @@
                 rl.innerHTML = '';
                 data.reactionList.forEach((reaction) => {
                     const d = document.createElement('div');
-                    d.className += 'rounded-lg bg-zinc-300 px-2 py-2 text-zinc-500 mr-4 mb-4';
+                    d.className += 'rounded-lg bg-zinc-300 px-2 py-2 text-zinc-500 mr-4 mb-4 dark:bg-zinc-700 dark:text-neutral-200';
                     d.innerText = reaction;
                     rl.appendChild(d);
                 });
-                // close the modal
-                hideEmojiPicker(submissionId);
             })
     }
 </script>

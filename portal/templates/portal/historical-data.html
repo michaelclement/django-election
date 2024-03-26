@@ -1,7 +1,9 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
-<body class='bg-[#E3E3E1] text-zinc-700 h-full pt-5 sm:text-5xl lg:text-2xl overflow-x-hidden w-full text-center'>
-    <h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10'>Week {{week_num}}
+<body class='bg-[#E3E3E1] text-zinc-700 h-full pt-5 sm:text-5xl lg:text-2xl overflow-x-hidden w-full text-center
+    dark:bg-zinc-800 dark:text-neutral-200'>
+    <h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10
+    dark:text-neutral-200'>Week {{week_num}}
         submissions</h1>
     <div class='text-center w-full mb-7'>
         <i>Swipe to see all from this week</i>
@@ -11,18 +13,19 @@
 
     {% for submitter, data in all_submissions.items %}
     {% if data.personal_stats.submitter_guess_total %}
-    <h2 class='text-2xl sm:text-5xl lg:text-2xl text-zinc-800 font-black text-center mt-10 pt-10'>
+    <h2 class='text-2xl sm:text-5xl lg:text-2xl text-zinc-800 font-black text-center mt-10 pt-10
+        dark:text-neutral-200'>
         {{submitter}} {# submitter name is the key #}
     </h2>
 
     <div class='flex flex-row items-center justify-center'>
-        <p class='text-zinc-600 p-[30px]'>
+        <p class='text-zinc-600 p-[30px] dark:text-neutral-200'>
             Has so far made
-            <span class='text-zinc-700 font-bold'>
+            <span class='text-zinc-700 font-bold dark:text-neutral-300'>
                 {{ data.personal_stats.submitter_guess_total }}
             </span>
             of
-            <span class='text-zinc-700 font-bold'>
+            <span class='text-zinc-700 font-bold dark:text-neutral-200'>
                 42
             </span>
             possible guesses this week, and guessed correct characters
