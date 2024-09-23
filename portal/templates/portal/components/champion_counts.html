@@ -1,0 +1,27 @@
+{% if champions %}
+<h1 class='text-3xl sm:text-7xl lg:text-3xl text-zinc-800 font-black text-center mt-10 pt-10 dark:text-neutral-200'>Total {{window_type}}ly wins</h1>
+<br>
+<br>
+<table class="border-collapse m-auto table-auto w-[95%] sm:text-6xl lg:text-lg">
+    <thead>
+        <tr>
+            <th class="border-b font-bold p-4 pl-8 pt-0 pb-3 text-left">Name</th>
+            <th class="border-b font-bold p-4 pl-8 pt-0 pb-3 text-left">Win count</th>
+        </tr>
+    </thead>
+    <tbody class="bg-white dark:bg-zinc-700">
+        {% for champ in champ_win_list %}
+           <tr>
+            <td class="border-b border-slate-100 p-4 pl-8 text-zinc-400">
+              {{champ.submitter__name}}
+            </td>
+            <td class="border-b border-slate-100 p-4 pl-8">
+              {{champ.count}}
+            </td>
+           </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<br>
+<br>
+{% endif %}

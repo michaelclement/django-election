@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.timezone import make_aware
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from .models import WordleSubmission, Submitter, Champion
 
 import re
@@ -198,6 +198,8 @@ def index(request):
     previous_weekly_champions = Champion.objects.filter(
         window_type='week',
     ).order_by('-window_start')
+    # Tally up how many times each person has won "champ of the week":
+    champ_win_list = previous_weekly_champions.values('submitter__name').annotate(count=Count('id')).order_by('-count')
 
     context = {
         "latest_submission_list": latest_submission_list,
@@ -212,6 +214,7 @@ def index(request):
         "week_finish_date": week_finish,
         "week_num": week_num,
         "champions": previous_weekly_champions,
+        "champ_win_list": champ_win_list # how many times each person has won champ of the week
     }
 
     return render(request, "portal/index.html", context)
@@ -332,6 +335,8 @@ def leaderboard(request):
     champions = Champion.objects.filter(
         window_type='month',
     ).order_by('-window_start')
+    # Tally up how many times each person has won "champ of the month":
+    champ_win_list = champions.values('submitter__name').annotate(count=Count('id')).order_by('-count')
 
     context = {
         'scores': scores,
@@ -339,6 +344,7 @@ def leaderboard(request):
         'possible_guesses': datetime.today().day * 6, # All guesses up to today
         'num_puzzles': len(all_puzzles_in_month),
         'champions': champions,
+        'champ_win_list': champ_win_list
     }
 
     return render(request, "portal/leaderboard.html", context)
