@@ -27,8 +27,8 @@ def helper__get_week_dates():
     iso_week_date = int(date.strftime('%V')) # Week one is the week containing Jan 4
     # Week starts on Sunday
     if date.strftime("%A") == 'Sunday':
-        iso_week_date = iso_week_date + 1 # TODO: Is this correct?
         week_start = date.strptime(f"{date.strftime('%Y')}-W{iso_week_date}-1", "%Y-W%W-%w") - timedelta(days=1)
+        iso_week_date += 1 # Adjust for the fact we start the week on Sunday, not Monday
     else: # we're part-way into a week
         week_start = date.strptime(f"{date.strftime('%Y')}-W{iso_week_date - 1}-1", "%Y-W%W-%w") - timedelta(days=1)
     # Return start date, finish date, and week number
