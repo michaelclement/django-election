@@ -24,16 +24,16 @@ def helper__month_mangler(date=datetime.today().replace(day=1), pad_to_current_d
 def helper__get_week_dates():
     # Get datetime objects for start/end dates of week
     date = datetime.today()
-    iso_week_date = date.strftime('%V')
+    iso_week_date = date.strftime('%V') # Week one is the week containing Jan 4
     # Week starts on Sunday
     if date.strftime("%A") == 'Sunday':
-        iso_week_date = int(iso_week_date) + 1
+        iso_week_date = int(iso_week_date) #+ 1 # TODO: Why did the +1 work for 2024 but not 2025?
         week_start = date.strptime(f"{date.strftime('%Y')}-W{iso_week_date}-1", "%Y-W%W-%w") - timedelta(days=1)
     else: # we're part-way into a week
         week_start = date.strptime(f"{date.strftime('%Y')}-W{iso_week_date}-1", "%Y-W%W-%w") - timedelta(days=1)
 
     # Return start date, finish date, and week number
-    return week_start, week_start + timedelta(days=7), iso_week_date
+    return week_start, week_start + timedelta(days=7), iso_week_date + 1 # TODO: why do we have to add +1 to week date?
 
 def helper__get_puzzles_in_date_range(start_date, window_size=7):
     # Get list of all puzzle nums that are contained in a given
