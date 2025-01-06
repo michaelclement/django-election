@@ -33,7 +33,7 @@ def helper__get_week_dates():
         week_start = date.strptime(f"{date.strftime('%Y')}-W{iso_week_date}-1", "%Y-W%W-%w") - timedelta(days=1)
 
     # Return start date, finish date, and week number
-    return week_start, week_start + timedelta(days=7), iso_week_date + 1 # TODO: why do we have to add +1 to week date?
+    return week_start, week_start + timedelta(days=7), int(iso_week_date) + 1 # TODO: why do we have to add +1 to week date?
 
 def helper__get_puzzles_in_date_range(start_date, window_size=7):
     # Get list of all puzzle nums that are contained in a given
