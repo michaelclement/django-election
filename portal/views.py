@@ -7,7 +7,7 @@ from .models import WordleSubmission, Submitter, Champion
 
 import re
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 import calendar
 
 WORDLE_START_DATE = datetime(2021, 6, 19)
@@ -21,22 +21,36 @@ def helper__month_mangler(date=datetime.today().replace(day=1), pad_to_current_d
 
     return start_of_month, days_in_month, all_puzzles_in_month, scores
 
-def helper__get_week_dates():
-    # Get datetime objects for start/end dates of week
-    date = datetime.today()
-    iso_week_date = int(date.strftime('%V')) # Week one is the week containing Jan 4
-    # Week starts on Sunday
-    if date.strftime("%A") == 'Sunday':
-        week_start = date.strptime(f"{date.strftime('%Y')}-W{iso_week_date}-1", "%Y-W%W-%w") - timedelta(days=1)
-        iso_week_date += 1 # Adjust for the fact we start the week on Sunday, not Monday
-    else: # we're part-way into a week
-        week_start = date.strptime(f"{date.strftime('%Y')}-W{iso_week_date - 1}-1", "%Y-W%W-%w") - timedelta(days=1)
-    # Return start date, finish date, and week number
-    return week_start, week_start + timedelta(days=7), iso_week_date
+def helper__get_week_dates(date=None):
+    if date is None:
+        date = datetime.today().date()
+
+    midnight = time(0, 0)
+
+    # ISO year, ISO week number, ISO weekday (Mon=1..Sun=7)
+    iso_year, iso_week, iso_weekday = date.isocalendar()
+
+    # Monday of the ISO week
+    week_start = date - timedelta(days=iso_weekday - 1)
+
+    # Sunday of the ISO week
+    week_end = week_start + timedelta(days=6)
+
+    # convert to datetimes to not break backwards compatibility
+    week_start = datetime.combine(week_start, midnight)
+    week_end = datetime.combine(week_end, midnight)
+
+    vals = {
+        "iso_year": iso_year,
+        "iso_week": iso_week,
+        "week_start": week_start,
+        "week_end": week_end,
+    }
+    return week_start, week_end, iso_week
 
 def helper__get_puzzles_in_date_range(start_date, window_size=7):
     # Get list of all puzzle nums that are contained in a given
-    # start date + window. E.g., a sunday + 7 gives us all puzzles in 
+    # start date + window. E.g., a Monday + 7 gives us all puzzles in 
     # that week. 
     # Return list of puzzle numbers.
 
@@ -147,8 +161,8 @@ def helper__save_latest_champ(window_type='month'):
         sd = (datetime.today() - timedelta(days=datetime.today().day)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         # --
         start_date, delta, apim, scores = helper__month_mangler(date=sd, pad_to_current_day_only=False)
-    elif window_type == 'week' and datetime.today().strftime("%A") == 'Sunday':
-        start_date = datetime.today() - timedelta(days=7) # Last Sunday
+    elif window_type == 'week' and datetime.today().strftime("%A") == 'Monday':
+        start_date = datetime.today() - timedelta(days=7) # Last Monday 
         scores = helper__get_ranking_of_window(
             helper__get_puzzles_in_date_range(start_date)
         )
@@ -188,7 +202,7 @@ def index(request):
     submitters = Submitter.objects.all().order_by('name')
     week_start, week_finish, week_num = helper__get_week_dates()
 
-    # Save last week's champ if today is sunday (handled internal to func)
+    # Save last week's champ if today is Monday (handled internal to func)
     helper__save_latest_champ(window_type='week')
 
     # Get the latest 4 weekly champs to display
