@@ -31,7 +31,7 @@
         {% csrf_token %}
         <legend class='text-center w-full mb-7'><i>Select your name and paste your answer to today's puzzle, then
                 submit</i></legend>
-        <select name="submitter" class='sm:w-[28.5rem] mb-3 lg:w-[250px] dark:bg-zinc-700 dark:text-neutral-200' required>
+        <select id="name-select" name="submitter" class='sm:w-[28.5rem] mb-3 lg:w-[250px] dark:bg-zinc-700 dark:text-neutral-200' required onchange="cacheName(this.value)">
             <option disabled selected value> - select your name - </option>
             {% for submitter in submitters %}
             <option value={{submitter.id}} name="submitter" id="submitter{{forloop.counter}}">{{submitter.name}}
@@ -70,3 +70,16 @@
     </div>
     <br />
 </body>
+<script>
+    // Default the user dropdown to whatever was last selected
+    // in this user's browser.
+    let lastUser = localStorage.getItem('wordleUser');
+    if (lastUser) {
+        let ns = document.getElementById('name-select');
+        ns.value = lastUser;
+    }
+
+    function cacheName(userId) {
+        localStorage.setItem('wordleUser', userId);
+    }
+</script>
