@@ -50,7 +50,7 @@ def helper__get_week_dates(date=None):
 
 def helper__get_puzzles_in_date_range(start_date, window_size=7):
     # Get list of all puzzle nums that are contained in a given
-    # start date + window. E.g., a Monday + 7 gives us all puzzles in 
+    # start date + window. E.g., a monday + 7 gives us all puzzles in 
     # that week. 
     # Return list of puzzle numbers.
 
@@ -171,28 +171,49 @@ def helper__save_latest_champ(window_type='month'):
         return False # Don't do anything
 
     submitters = Submitter.objects.all()
-    champname = scores['all_scores'][0]['name'] # champ of specified window
-    champ_submitter = None
+
+    # TODO: DANGER: this logic assumes names are unique (which is not enforced anywhere)
+    # Identify the winning score for the window
+    winning_score = scores['all_scores'][0]['total']
+    tied = [] # Store 1-n people with the winning score
+    for score in scores['all_scores']:
+        if score['total'] == winning_score:
+            tied.append(score['name']) # TODO: we should really be using an id here
+
+    # Get the person objects for all tied people of this window
+    # so we can add a champion entry for each
+    champions = []
     for person in submitters:
-        if person.name == champname:
-            champ_submitter = person
+        if person.name in tied:
+            champions.append(person)
 
-    # add a new champ for specified window (month or week)
+    # Victory start date will be midnight at the start of the window
     start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
-    new_champ = Champion(
-        submitter=champ_submitter,
-        window_type=window_type,
-        window_start=start_date,
-        window_end=start_date + timedelta(days=delta),
-        num_guesses=scores['all_scores'][0]['total'], # top champ score - we choose the alphabetical winner if a tie
-        num_possible_guesses=delta*6,
-    )
-
     already_exists = Champion.objects.filter(
         window_start=start_date
     ).filter(window_type=window_type)
 
-    if already_exists.count() == 0:
+    # Save a champ of the window entry for each person in `tied` (could just be one person)
+    for champ in champions:
+        already_added_champ = False
+        for prev_champ in already_exists:
+            if prev_champ.submitter.id == champ.id:
+                # We already added this champ for this time period
+                already_added_champ = True
+                break
+        
+        if already_added_champ:
+            return False
+
+        new_champ = Champion(
+            submitter=champ,
+            window_type=window_type,
+            window_start=start_date,
+            window_end=start_date + timedelta(days=delta),
+            num_guesses=winning_score,
+            num_possible_guesses=delta*6,
+        )
+
         new_champ.save()
 
 # Create your views here.
